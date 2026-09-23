@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>مُرتّب — تنظيف ملفات الإكسل تلقائيًا</title>
+<title>مرتب إكسل — نظّف ملفاتك بضغطة</title>
 <meta name="description" content="ارفع ملف إكسل فوضوي وحمّله مرتبًا خلال ثوانٍ: حذف الصفوف الفاضية والتكرارات والأعمدة الميتة، وتوحيد التواريخ — كل المعالجة داخل متصفحك.">
 <meta name="theme-color" content="#2D5F4C">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232D5F4C'/%3E%3Crect x='8' y='11' width='16' height='2.4' rx='1.2' fill='%23FAF8F3'/%3E%3Crect x='8' y='18' width='10' height='2.4' rx='1.2' fill='%23FAF8F3'/%3E%3C/svg%3E">
@@ -371,6 +371,61 @@
   .mem-switch input:focus-visible + .mem-slider { outline: 2px solid var(--forest); outline-offset: 2px; }
   .mem-switch-label { font-size: 13.5px; }
 
+  /* ---------- قارن نسختين (محلي بالكامل) ---------- */
+  #compareSection { scroll-margin-top: 78px; }
+  .cmp-heading h3 { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 17px; margin: 0 0 6px; }
+  .cmp-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 18px; }
+  .cmp-dropzones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .cmp-zone {
+    border: 1.5px dashed var(--line); border-radius: var(--radius);
+    padding: 18px 14px; text-align: center; cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .cmp-zone:hover, .cmp-zone.drag { border-color: var(--forest); background: color-mix(in srgb, var(--forest) 6%, transparent); }
+  .cmp-zone:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
+  .cmp-zone-ready { border-style: solid; border-color: var(--forest); }
+  .cmp-zone-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .cmp-zone-hint { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .cmp-zone-file { font-size: 13px; color: var(--forest-deep); word-break: break-word; }
+  .cmp-input { display: none; }
+  .cmp-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+  .cmp-btn {
+    background: var(--forest); color: #fff; border: none; border-radius: 8px;
+    padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .cmp-btn:hover:not(:disabled) { background: var(--forest-deep); }
+  .cmp-btn:disabled { opacity: .5; cursor: default; }
+  .cmp-btn-ghost {
+    background: var(--paper); color: var(--forest-deep); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 18px; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .cmp-btn-ghost:hover { border-color: var(--forest); }
+  .cmp-key-label { font-size: 13px; color: var(--muted); }
+  .cmp-select {
+    flex: 1 1 160px; min-width: 140px; font-family: inherit; font-size: 13.5px;
+    padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--paper); color: var(--ink);
+  }
+  .cmp-select:focus { outline: none; border-color: var(--forest); }
+  .cmp-hint { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+  .cmp-hint.err { color: var(--danger); }
+  .cmp-table-wrap { margin-top: 18px; }
+  .cmp-more { padding: 8px 12px; color: var(--muted); font-size: 12.5px; }
+  .cmp-added { background: color-mix(in srgb, var(--forest) 10%, transparent); }
+  .cmp-removed { background: color-mix(in srgb, var(--danger) 10%, transparent); }
+  .cmp-modified { background: color-mix(in srgb, var(--amber) 14%, transparent); }
+  .cmp-cell-old { color: var(--muted); text-decoration: line-through; }
+  .cmp-cell-new { color: var(--forest-deep); font-weight: 600; }
+  .cmp-badge { display: inline-block; font-size: 11.5px; padding: 2px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+  .cmp-badge-added { color: var(--forest-deep); background: color-mix(in srgb, var(--forest) 12%, transparent); }
+  .cmp-badge-removed { color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+  .cmp-badge-modified { color: var(--amber); background: var(--amber-soft); }
+  .stat .num.c-add { color: var(--forest-deep); }
+  .stat .num.c-del { color: var(--danger); }
+  .stat .num.c-mod { color: var(--amber); }
+  .agent-section--card { margin-top: 0; padding-top: 0; border-top: none; }
+
   /* ---------- تذييل الصفحة ---------- */
   .site-footer {
     border-top: 1px solid var(--line);
@@ -411,6 +466,7 @@
     </a>
     <nav class="topbar-nav">
       <span class="brand-tag">تنظيف ملفات إكسل تلقائيًا</span>
+      <a href="#compareSection">قارن نسختين</a>
       <a href="privacy.html">الخصوصية</a>
       <a href="terms.html">الشروط</a>
     </nav>
@@ -503,8 +559,48 @@
         </label>
       </div>
     </div>
+  </div>
 
-    <div class="agent-section">
+  <!-- ============ قارن نسختين — كارت مستقل ومرئي دائمًا (محلي ١٠٠٪) ============ -->
+  <div class="card" id="compareSection">
+    <div class="cmp-heading">
+      <h3>قارن نسختين من ملفك</h3>
+    </div>
+    <p class="cmp-sub">ارفع النسخة القديمة والجديدة، وشوف وش تغيّر بالضبط</p>
+
+    <div class="cmp-dropzones">
+      <div class="cmp-zone" id="cmpZoneOld" tabindex="0" role="button" aria-label="اختر الملف القديم">
+        <div class="cmp-zone-title">الملف القديم</div>
+        <div class="cmp-zone-hint">اضغط للاختيار أو اسحب الملف هنا</div>
+        <div class="cmp-zone-file" id="cmpNameOld">ما اخترت ملف</div>
+        <input type="file" id="cmpInputOld" class="cmp-input" accept=".xlsx,.xls,.csv">
+      </div>
+      <div class="cmp-zone" id="cmpZoneNew" tabindex="0" role="button" aria-label="اختر الملف الجديد">
+        <div class="cmp-zone-title">الملف الجديد</div>
+        <div class="cmp-zone-hint">اضغط للاختيار أو اسحب الملف هنا</div>
+        <div class="cmp-zone-file" id="cmpNameNew">ما اخترت ملف</div>
+        <input type="file" id="cmpInputNew" class="cmp-input" accept=".xlsx,.xls,.csv">
+      </div>
+    </div>
+
+    <div class="cmp-controls">
+      <button type="button" class="cmp-btn" id="cmpRun" disabled>قارن الآن</button>
+      <label class="cmp-key-label" for="cmpKey">عمود المطابقة</label>
+      <select class="cmp-select" id="cmpKey" aria-label="عمود المطابقة" disabled></select>
+      <button type="button" class="cmp-btn-ghost hidden" id="cmpDownload">تحميل نتيجة المقارنة (xlsx)</button>
+    </div>
+    <div class="cmp-hint hidden" id="cmpHint" role="status" aria-live="polite"></div>
+
+    <div class="stats hidden" id="cmpStats"></div>
+    <div class="cmp-table-wrap hidden" id="cmpTableWrap">
+      <div class="tbl-scroll" id="cmpTable"></div>
+      <div class="cmp-more hidden" id="cmpMore"></div>
+    </div>
+  </div>
+
+  <!-- ============ اطلب أي شيء — يظهر بعد ما تعالج ملف ============ -->
+  <div class="card hidden" id="agentCard">
+    <div class="agent-section agent-section--card">
       <div class="agent-heading">
         <h3>اطلب أي شيء من بياناتك</h3>
         <span class="badge-beta">تجريبي</span>
@@ -555,6 +651,7 @@
   const afterTableEl = document.getElementById('afterTable');
   const downloadBtn = document.getElementById('downloadBtn');
   const demoBtn = document.getElementById('demoBtn');
+  const agentCard = document.getElementById('agentCard');
 
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
@@ -575,6 +672,7 @@
   });
   resetBtn.addEventListener('click', () => {
     resultCard.classList.add('hidden');
+    agentCard.classList.add('hidden');
     uploadCard.classList.remove('hidden');
     errorBox.classList.add('hidden');
     fileInput.value = '';
@@ -606,40 +704,48 @@
     errorBox.classList.add('hidden');
     uploadCard.classList.add('hidden');
     resultCard.classList.remove('hidden');
+    agentCard.classList.remove('hidden');
+  }
+
+  /** يقرأ أول ورقة من ملف إكسل/CSV ويرجّعها مصفوفة صفوف (نفس إعدادات التنظيف) */
+  function readAoaFromFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('read_failed'));
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          // ترميز الملف: مكتبة XLSX تفترض ترميزًا أحادي البايت لملفات CSV لما ما فيه
+          // BOM، فيتشوّه النص العربي. نتحقق: لو البايتات UTF-8 صالحة نمرّر 65001،
+          // وإلا نترك الافتراضي (ملفات إكسل xlsx/xls ما تتأثر — الترميز داخلي فيها).
+          let codepage = 1252;
+          try {
+            new TextDecoder('utf-8', { fatal: true }).decode(data);
+            codepage = 65001;
+          } catch (encErr) {
+            codepage = 1252;
+          }
+          const wb = XLSX.read(data, { type: 'array', cellDates: true, codepage });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          // قيم خام (raw) عشان خلايا التاريخ ترجع كائنات تاريخ حقيقية وتنوحّد بصيغة ISO
+          resolve(XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' }));
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
   }
 
   function handleFile(file) {
     errorBox.classList.add('hidden');
     statusLine.classList.remove('hidden');
     statusText.textContent = 'جاري القراءة والتنظيف…';
-
-    const reader = new FileReader();
-    reader.onerror = () => showError('تعذّر قراءة الملف. جرّب ملف ثاني.');
-    reader.onload = (e) => {
-      try {
-        const data = new Uint8Array(e.target.result);
-        // ترميز الملف: مكتبة XLSX تفترض ترميزًا أحادي البايت لملفات CSV لما ما فيه
-        // BOM، فيتشوّه النص العربي. نتحقق: لو البايتات UTF-8 صالحة نمرّر 65001،
-        // وإلا نترك الافتراضي (ملفات إكسل xlsx/xls ما تتأثر — الترميز داخلي فيها).
-        let codepage = 1252;
-        try {
-          new TextDecoder('utf-8', { fatal: true }).decode(data);
-          codepage = 65001;
-        } catch (encErr) {
-          codepage = 1252;
-        }
-        const wb = XLSX.read(data, { type: 'array', cellDates: true, codepage });
-        const sheetName = wb.SheetNames[0];
-        const ws = wb.Sheets[sheetName];
-        // قيم خام (raw) عشان خلايا التاريخ ترجع كائنات تاريخ حقيقية وتنوحّد بصيغة
-        // ISO. بدون هذي الخطوة ترجع بصيغة إكسل المختصرة (1/4/26) وما تنوحّد أبدًا.
-        const dataAoa = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
-        processRows(dataAoa, file.name.replace(/\.[^.]+$/, '') || 'ملف-مرتب');
-      } catch (err) {
+    readAoaFromFile(file)
+      .then((dataAoa) => processRows(dataAoa, file.name.replace(/\.[^.]+$/, '') || 'ملف-مرتب'))
+      .catch((err) => {
         showError('صار خطأ أثناء معالجة الملف: ' + (err && err.message ? err.message : 'خطأ غير معروف'));
-      }
-    };
-    reader.readAsArrayBuffer(file);
+      });
   }
 
   // ---- بيانات تجريبية فوضوية (تمر بنفس مسار التنظيف تمامًا) ----
@@ -668,6 +774,352 @@
       }
     }, 150);
   });
+
+  // =====================================================================
+  // قارن نسختين — محلي ١٠٠٪ (SheetJS فقط، بدون رفع أي ملف لأي سيرفر)
+  // =====================================================================
+  const CMP_MAX_ROWS = 200;
+
+  const cmpZoneOld = document.getElementById('cmpZoneOld');
+  const cmpZoneNew = document.getElementById('cmpZoneNew');
+  const cmpInputOld = document.getElementById('cmpInputOld');
+  const cmpInputNew = document.getElementById('cmpInputNew');
+  const cmpNameOld = document.getElementById('cmpNameOld');
+  const cmpNameNew = document.getElementById('cmpNameNew');
+  const cmpRunBtn = document.getElementById('cmpRun');
+  const cmpKeySel = document.getElementById('cmpKey');
+  const cmpDownloadBtn = document.getElementById('cmpDownload');
+  const cmpHintEl = document.getElementById('cmpHint');
+  const cmpStatsEl = document.getElementById('cmpStats');
+  const cmpTableWrap = document.getElementById('cmpTableWrap');
+  const cmpTableEl = document.getElementById('cmpTable');
+  const cmpMoreEl = document.getElementById('cmpMore');
+
+  let cmpOld = null;      // { name, aoa }
+  let cmpNew = null;
+  let cmpLast = null;     // نتيجة آخر مقارنة
+
+  function cmpShowHint(text, isError) {
+    cmpHintEl.textContent = text;
+    cmpHintEl.classList.remove('hidden');
+    if (isError) cmpHintEl.classList.add('err'); else cmpHintEl.classList.remove('err');
+  }
+  function cmpValue(v) {
+    if (v instanceof Date) return formatDate(v);
+    if (v === null || v === undefined) return '';
+    return String(v).trim();
+  }
+  function cmpResetResult() {
+    cmpLast = null;
+    cmpStatsEl.innerHTML = '';
+    cmpStatsEl.classList.add('hidden');
+    cmpTableEl.innerHTML = '';
+    cmpTableWrap.classList.add('hidden');
+    cmpMoreEl.classList.add('hidden');
+    cmpDownloadBtn.classList.add('hidden');
+  }
+
+  function cmpWireZone(zone, input, nameEl, side) {
+    const open = () => input.click();
+    zone.addEventListener('click', open);
+    zone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('drag');
+      if (e.dataTransfer && e.dataTransfer.files.length) cmpLoad(side, e.dataTransfer.files[0], zone, nameEl);
+    });
+    input.addEventListener('change', () => {
+      if (input.files.length) cmpLoad(side, input.files[0], zone, nameEl);
+    });
+  }
+
+  function cmpLoad(side, file, zone, nameEl) {
+    nameEl.textContent = file.name + ' — جاري القراءة…';
+    readAoaFromFile(file)
+      .then((aoa) => {
+        if (!aoa || !aoa.length) throw new Error('empty');
+        const rows = Math.max(0, aoa.length - 1);
+        const rec = { name: file.name, aoa: aoa };
+        if (side === 'old') cmpOld = rec; else cmpNew = rec;
+        nameEl.textContent = file.name + ' · ' + rows + ' صف';
+        zone.classList.add('cmp-zone-ready');
+        cmpResetResult();
+        cmpUpdateReady();
+        if (cmpOld && cmpNew) cmpShowHint('الملفان جاهزان — اضغط «قارن الآن».', false);
+      })
+      .catch(() => {
+        if (side === 'old') cmpOld = null; else cmpNew = null;
+        nameEl.textContent = 'ما اخترت ملف';
+        zone.classList.remove('cmp-zone-ready');
+        cmpResetResult();
+        cmpUpdateReady();
+        cmpShowHint('تعذّر قراءة هذا الملف. جرّب ملف إكسل أو CSV صالح.', true);
+      });
+  }
+
+  function cmpUpdateReady() {
+    const ready = !!(cmpOld && cmpNew);
+    cmpRunBtn.disabled = !ready;
+    if (!ready) {
+      cmpKeySel.innerHTML = '';
+      cmpKeySel.disabled = true;
+      return;
+    }
+    const headers = cmpOld.aoa[0] || [];
+    cmpKeySel.innerHTML = headers
+      .map((h, i) => '<option value="' + i + '">' + (esc(String(h)) || 'عمود ' + (i + 1)) + '</option>')
+      .join('');
+    cmpKeySel.disabled = false;
+    const guess = cmpDetectKey(cmpOld.aoa, cmpNew.aoa);
+    if (guess >= 0) cmpKeySel.value = String(guess);
+  }
+
+  /** تطبيع اسم العمود لمطابقة الأعمدة بين الملفين */
+  function cmpNormHeader(s) {
+    return String(s === null || s === undefined ? '' : s)
+      .replace(/\u0640/g, '')
+      .replace(/[أإآٱ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .replace(/[\u200e\u200f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  /** يطابق أعمدة الملفين بالاسم (وإلا بالترتيب) */
+  function cmpPairs(oldAoa, newAoa) {
+    const ho = (oldAoa[0] || []).map((h) => String(h === null || h === undefined ? '' : h));
+    const hn = (newAoa[0] || []).map((h) => String(h === null || h === undefined ? '' : h));
+    const nOld = ho.map(cmpNormHeader);
+    const nNew = hn.map(cmpNormHeader);
+    const usedNew = new Set();
+    const pairs = [];
+    let matched = 0;
+    ho.forEach((h, i) => {
+      let j = -1;
+      if (nOld[i]) {
+        j = nNew.findIndex((x, k) => !usedNew.has(k) && x && x === nOld[i]);
+      }
+      if (j >= 0) { usedNew.add(j); matched++; }
+      pairs.push({ oldIndex: i, newIndex: j, label: h || ('عمود ' + (i + 1)), only: j < 0 ? 'old' : '' });
+    });
+    hn.forEach((h, k) => {
+      if (!usedNew.has(k)) pairs.push({ oldIndex: -1, newIndex: k, label: h || ('عمود ' + (k + 1)), only: 'new' });
+    });
+    const byName = matched >= Math.max(2, Math.floor(ho.length * 0.5));
+    if (byName) return pairs;
+    // ما تطابقت الأسماء → نطابق بالترتيب
+    const len = Math.max(ho.length, hn.length);
+    const idxPairs = [];
+    for (let i = 0; i < len; i++) {
+      idxPairs.push({
+        oldIndex: i < ho.length ? i : -1,
+        newIndex: i < hn.length ? i : -1,
+        label: ho[i] || hn[i] || ('عمود ' + (i + 1)),
+        only: '',
+      });
+    }
+    return idxPairs;
+  }
+
+  /** هل العمود فريد (كل قيمه غير الفاضية مختلفة)؟ */
+  function cmpUniqueness(aoa, index) {
+    const rows = aoa.slice(1);
+    const seen = new Set();
+    let nonEmpty = 0;
+    let dup = 0;
+    for (const r of rows) {
+      const s = cmpValue(r[index]);
+      if (!s) continue;
+      nonEmpty++;
+      if (seen.has(s)) dup++; else seen.add(s);
+    }
+    return { nonEmpty: nonEmpty, unique: nonEmpty > 0 && dup === 0 };
+  }
+
+  /** يختار عمود المعرّف: اسمه يدل على معرّف ← أول عمود ← أول عمود فريد */
+  function cmpDetectKey(oldAoa, newAoa) {
+    const headers = (oldAoa[0] || []).map(cmpNormHeader);
+    const idLike = headers.findIndex((h) => /(رقم|كود|معرف|مرجع|فاتوره|هويه|جوال|ايبان|باركود|id|sku|code|no|ref)/.test(h));
+    const order = [];
+    if (idLike >= 0) order.push(idLike);
+    if (order.indexOf(0) === -1) order.push(0);
+    for (let i = 0; i < headers.length; i++) if (order.indexOf(i) === -1) order.push(i);
+    for (const i of order) {
+      if (cmpUniqueness(oldAoa, i).unique && cmpUniqueness(newAoa, i).unique) return i;
+    }
+    return -1;
+  }
+
+  function cmpRunCompare() {
+    if (!cmpOld || !cmpNew) return;
+    const oldKeyIndex = Number(cmpKeySel.value);
+    const pairs = cmpPairs(cmpOld.aoa, cmpNew.aoa);
+    // عمود المطابقة له موضع مختلف في كل ملف (الأعمدة قد تكون بترتيب مختلف)
+    const keyPair = pairs.find((p) => p.oldIndex === oldKeyIndex);
+    const newKeyIndex = keyPair && keyPair.newIndex >= 0 ? keyPair.newIndex : -1;
+    const keyUsable = oldKeyIndex >= 0 && newKeyIndex >= 0;
+
+    const oldRows = cmpOld.aoa.slice(1);
+    const newRows = cmpNew.aoa.slice(1);
+
+    const byKey = (rows, idx) => {
+      const m = new Map();
+      for (const r of rows) {
+        const k = idx >= 0 ? cmpValue(r[idx]) : JSON.stringify(r.map(cmpValue));
+        if (!m.has(k)) m.set(k, []);
+        m.get(k).push(r);
+      }
+      return m;
+    };
+    const mOld = byKey(oldRows, keyUsable ? oldKeyIndex : -1);
+    const mNew = byKey(newRows, keyUsable ? newKeyIndex : -1);
+
+    const added = [], removed = [], modified = [];
+    const allKeys = new Set([...mOld.keys(), ...mNew.keys()]);
+    for (const k of allKeys) {
+      const o = mOld.get(k) || [];
+      const n = mNew.get(k) || [];
+      const common = Math.min(o.length, n.length);
+      for (let i = 0; i < common; i++) {
+        const diffs = [];
+        for (const p of pairs) {
+          if (p.oldIndex < 0 || p.newIndex < 0) continue;
+          const ov = cmpValue(o[i][p.oldIndex]);
+          const nv = cmpValue(n[i][p.newIndex]);
+          if (ov !== nv) diffs.push({ label: p.label, oldValue: o[i][p.oldIndex], newValue: n[i][p.newIndex] });
+        }
+        if (diffs.length) modified.push({ key: k, diffs: diffs, oldRow: o[i], newRow: n[i] });
+      }
+      for (let i = common; i < n.length; i++) added.push({ key: k, row: n[i] });
+      for (let i = common; i < o.length; i++) removed.push({ key: k, row: o[i] });
+    }
+
+    cmpLast = { added: added, removed: removed, modified: modified, pairs: pairs, keyIndex: oldKeyIndex, newKeyIndex: newKeyIndex, keyUsable: keyUsable };
+    cmpRender(cmpLast);
+  }
+
+  function cmpStat(num, label, cls) {
+    return '<div class="stat"><div class="num ' + (cls || '') + '">' + num + '</div><div class="lbl">' + esc(label) + '</div></div>';
+  }
+
+  function cmpRender(res) {
+    const totalOld = Math.max(0, cmpOld.aoa.length - 1);
+    const totalNew = Math.max(0, cmpNew.aoa.length - 1);
+
+    cmpStatsEl.innerHTML =
+      cmpStat(res.added.length, 'صف مضاف', 'c-add') +
+      cmpStat(res.removed.length, 'صف محذوف', 'c-del') +
+      cmpStat(res.modified.length, 'صف معدّل', 'c-mod') +
+      cmpStat(totalOld, 'صف في الملف القديم') +
+      cmpStat(totalNew, 'صف في الملف الجديد');
+    cmpStatsEl.classList.remove('hidden');
+
+    const labels = res.pairs.map((p) => p.label);
+    let html = '<table><thead><tr><th>الحالة</th><th>المفتاح</th>';
+    labels.forEach((l) => { html += '<th>' + (esc(l) || '&nbsp;') + '</th>'; });
+    html += '</tr></thead><tbody>';
+
+    const diffCell = (v) => {
+      const s = cmpValue(v);
+      return s === '' ? '<td class="empty-cell">—</td>' : '<td>' + esc(s) + '</td>';
+    };
+
+    const all = [];
+    res.added.forEach((a) => all.push({ kind: 'added', key: a.key, row: a.row }));
+    res.removed.forEach((r) => all.push({ kind: 'removed', key: r.key, row: r.row }));
+    res.modified.forEach((m) => all.push({ kind: 'modified', key: m.key, row: m.oldRow, newRow: m.newRow, diffs: m.diffs }));
+
+    const shown = all.slice(0, CMP_MAX_ROWS);
+    const badge = { added: 'مضاف', removed: 'محذوف', modified: 'معدّل' };
+    for (const item of shown) {
+      html += '<tr class="cmp-' + item.kind + '">';
+      html += '<td><span class="cmp-badge cmp-badge-' + item.kind + '">' + badge[item.kind] + '</span></td>';
+      html += diffCell(item.key);
+      const diffMap = item.diffs ? new Map(item.diffs.map((d) => [d.label, d])) : null;
+      for (const p of res.pairs) {
+        const d = diffMap ? diffMap.get(p.label) : null;
+        if (d) {
+          html += '<td><span class="cmp-cell-old">' + (esc(cmpValue(d.oldValue)) || '—') + '</span> ← <span class="cmp-cell-new">' + (esc(cmpValue(d.newValue)) || '—') + '</span></td>';
+        } else if (item.kind === 'added') {
+          html += diffCell(p.newIndex >= 0 ? item.row[p.newIndex] : '');
+        } else if (item.kind === 'removed') {
+          html += diffCell(p.oldIndex >= 0 ? item.row[p.oldIndex] : '');
+        } else {
+          const v = p.oldIndex >= 0 ? item.row[p.oldIndex] : (p.newIndex >= 0 ? item.newRow[p.newIndex] : '');
+          html += diffCell(v);
+        }
+      }
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
+    cmpTableEl.innerHTML = html;
+    cmpTableWrap.classList.remove('hidden');
+
+    if (all.length > CMP_MAX_ROWS) {
+      cmpMoreEl.textContent = '+ ' + (all.length - CMP_MAX_ROWS) + ' تغيير إضافي — حمّل النتيجة لرؤيتها كاملة';
+      cmpMoreEl.classList.remove('hidden');
+    } else {
+      cmpMoreEl.classList.add('hidden');
+    }
+    cmpDownloadBtn.classList.remove('hidden');
+
+    // ملاحظات مساعدة
+    const onlyOld = res.pairs.filter((p) => p.only === 'old').map((p) => p.label);
+    const onlyNew = res.pairs.filter((p) => p.only === 'new').map((p) => p.label);
+    const keyPair = res.pairs.find((p) => p.oldIndex === res.keyIndex);
+    const keyLabel = keyPair ? keyPair.label : null;
+    const notes = [];
+    if (res.keyUsable) {
+      notes.push('عمود المطابقة: «' + esc(keyLabel || '') + '»');
+    } else if (res.keyIndex >= 0 && keyLabel) {
+      notes.push('عمود المطابقة «' + esc(keyLabel) + '» مو موجود في الملف الجديد — طابقنا الصف كامل (مضاف/محذوف فقط)');
+    } else {
+      notes.push('ما لقينا عمودًا بقيم فريدة في الملفين — طابقنا الصف كامل (مضاف/محذوف فقط)');
+    }
+    if (onlyOld.length) notes.push('عمود في القديم فقط: ' + onlyOld.map(esc).join('، '));
+    if (onlyNew.length) notes.push('عمود في الجديد فقط: ' + onlyNew.map(esc).join('، '));
+    if (!all.length) notes.push('ما فيه أي فرق بين الملفين 🎉');
+    cmpShowHint(notes.join(' · '), false);
+  }
+
+  function cmpExport() {
+    if (!cmpLast) return;
+    const res = cmpLast;
+    const aoa = [['الحالة', 'المفتاح', ...res.pairs.map((p) => p.label)]];
+    const val = (v) => cmpValue(v);
+    res.added.forEach((a) => aoa.push(['مضاف', val(a.key), ...res.pairs.map((p) => (p.newIndex >= 0 ? val(a.row[p.newIndex]) : ''))]));
+    res.removed.forEach((r) => aoa.push(['محذوف', val(r.key), ...res.pairs.map((p) => (p.oldIndex >= 0 ? val(r.row[p.oldIndex]) : ''))]));
+    res.modified.forEach((m) => {
+      const diffMap = new Map(m.diffs.map((d) => [d.label, d]));
+      aoa.push(['معدّل', val(m.key), ...res.pairs.map((p) => {
+        const d = diffMap.get(p.label);
+        if (d) return val(d.oldValue) + ' ← ' + val(d.newValue);
+        if (p.oldIndex >= 0) return val(m.oldRow[p.oldIndex]);
+        return p.newIndex >= 0 ? val(m.newRow[p.newIndex]) : '';
+      })]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'المقارنة');
+    const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const base = (cmpOld.name || 'الملف').replace(/\.[^.]+$/, '');
+    downloadBlob(
+      new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+      'مقارنة-' + base + '.xlsx'
+    );
+  }
+
+  cmpWireZone(cmpZoneOld, cmpInputOld, cmpNameOld, 'old');
+  cmpWireZone(cmpZoneNew, cmpInputNew, cmpNameNew, 'new');
+  cmpRunBtn.addEventListener('click', cmpRunCompare);
+  cmpDownloadBtn.addEventListener('click', cmpExport);
+  cmpKeySel.addEventListener('change', () => { if (cmpLast) cmpRunCompare(); });
 
   // ---- cleaning logic ----
   function cellIsEmpty(v) {
