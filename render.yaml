@@ -20,7 +20,10 @@ services:
       - key: DEEPSEEK_MODEL
         value: deepseek-chat
       - key: DEEPSEEK_THINKING
-        value: disabled
+        value: enabled
+      # مفتاح DeepSeek يُدار من لوحة Render (لا يُكتب في الملف، ولا يُحذف عند مزامنة الـ Blueprint)
+      - key: DEEPSEEK_API_KEY
+        sync: false
       - key: MAX_TOKENS
         value: "4096"
       - key: REQUEST_TIMEOUT_MS
