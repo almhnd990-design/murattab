@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: murattab-agent
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: AI_PROVIDER
+        value: deepseek
+      - key: DEEPSEEK_MODEL
+        value: deepseek-flash
+      - key: MAX_TOKENS
+        value: "4096"
+      - key: RATE_LIMIT_PER_MIN
+        value: "30"
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      # هذي القيم تحطها يدويًا في لوحة Render (سريّة، ما تنكتب في الملف)
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      # لو اخترت Claude أو OpenAI بدل DeepSeek:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false

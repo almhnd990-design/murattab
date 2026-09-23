@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مُرتّب — تنظيف ملفات الإكسل تلقائيًا</title>
+<meta name="description" content="ارفع ملف إكسل فوضوي وحمّله مرتبًا خلال ثوانٍ: حذف الصفوف الفاضية والتكرارات والأعمدة الميتة، وتوحيد التواريخ — كل المعالجة داخل متصفحك.">
+<meta name="theme-color" content="#2D5F4C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232D5F4C'/%3E%3Crect x='8' y='11' width='16' height='2.4' rx='1.2' fill='%23FAF8F3'/%3E%3Crect x='8' y='18' width='10' height='2.4' rx='1.2' fill='%23FAF8F3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Tajawal:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --ink: #1C1E21;
+    --paper: #FAF8F3;
+    --paper-raised: #FFFFFF;
+    --line: #DEDACE;
+    --forest: #2D5F4C;
+    --forest-deep: #1F4436;
+    --amber: #B5651D;
+    --amber-soft: #F4E3D3;
+    --muted: #6B6558;
+    --danger: #A33A2E;
+    --radius: 10px;
+    --header-bg: #2D5F4C;
+    --header-ink: #FFFFFF;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #EDEAE2;
+      --paper: #17181A;
+      --paper-raised: #202225;
+      --line: #35373A;
+      --forest: #6FA98C;
+      --forest-deep: #8CC2A5;
+      --amber: #D99B5E;
+      --amber-soft: #3A2C1E;
+      --muted: #9B968A;
+      --danger: #D9776A;
+      --header-bg: #24312B;
+      --header-ink: #EDEAE2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #EDEAE2;
+    --paper: #17181A;
+    --paper-raised: #202225;
+    --line: #35373A;
+    --forest: #6FA98C;
+    --forest-deep: #8CC2A5;
+    --amber: #D99B5E;
+    --amber-soft: #3A2C1E;
+    --muted: #9B968A;
+    --danger: #D9776A;
+    --header-bg: #24312B;
+    --header-ink: #EDEAE2;
+  }
+  html, body { height: 100%; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* ---------- رأس الصفحة ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--header-bg);
+    color: var(--header-ink);
+    box-shadow: 0 1px 0 rgba(0,0,0,.10), 0 2px 10px rgba(0,0,0,.06);
+  }
+  .topbar-inner {
+    max-width: 880px; margin: 0 auto; padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+  .brand .mark {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: var(--header-ink); position: relative; flex: none;
+  }
+  .brand .mark::before, .brand .mark::after {
+    content: ""; position: absolute; right: 7px; left: 7px; height: 2px;
+    background: var(--header-bg); border-radius: 1px;
+  }
+  .brand .mark::before { top: 11px; }
+  .brand .mark::after { top: 17px; width: 60%; left: auto; }
+  .brandname { font-family: 'Tajawal', sans-serif; font-weight: 800; font-size: 19px; letter-spacing: 0.2px; }
+  .brand-tag { font-size: 13px; opacity: .85; }
+  .topbar-nav { display: flex; align-items: center; gap: 14px; }
+  .topbar-nav a { color: inherit; text-decoration: none; font-size: 13.5px; opacity: .9; border-bottom: 1px solid transparent; }
+  .topbar-nav a:hover { opacity: 1; border-bottom-color: currentColor; }
+
+  header.hero { margin-bottom: 40px; }
+  h1 {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.25;
+    margin: 0 0 14px;
+    max-width: 15ch;
+  }
+  .lede { color: var(--muted); font-size: 17px; max-width: 52ch; margin: 0; }
+
+  .diagram {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+  .diagram .panel {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 12px;
+  }
+  .diagram .panel .cap { color: var(--muted); font-size: 11px; margin-bottom: 8px; }
+  .diagram .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 4px; }
+  .diagram .cell { background: var(--paper); border-radius: 3px; padding: 4px 5px; min-height: 12px; }
+  .before .cell:nth-child(2) { opacity: 0.35; }
+  .before .row:nth-child(3) .cell { opacity: 0.25; }
+  .after .cell { background: var(--forest); opacity: 0.14; }
+  .arrow { color: var(--amber); font-size: 20px; }
+
+  .card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-top: 8px;
+  }
+
+  #dropzone {
+    border: 1.5px dashed var(--line);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  #dropzone:hover, #dropzone.drag {
+    border-color: var(--forest);
+    background: color-mix(in srgb, var(--forest) 6%, transparent);
+  }
+  #dropzone .icon { font-size: 26px; margin-bottom: 10px; }
+  #dropzone .primary { font-weight: 600; margin-bottom: 4px; }
+  #dropzone .secondary { color: var(--muted); font-size: 14px; }
+  #fileInput { display: none; }
+
+  .status-line { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; margin-top: 16px; }
+  .spinner {
+    width: 15px; height: 15px; border-radius: 50%;
+    border: 2px solid var(--line); border-top-color: var(--forest);
+    animation: spin 0.8s linear infinite; flex: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hidden { display: none !important; }
+
+  .filebar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .filebar .name { font-weight: 600; }
+  .filebar .name .ext { color: var(--muted); font-weight: 400; }
+  .reset-btn {
+    background: none; border: 1px solid var(--line); color: var(--muted);
+    border-radius: 7px; padding: 7px 14px; font-size: 13px; cursor: pointer;
+    font-family: inherit;
+  }
+  .reset-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 26px;
+  }
+  .stat { background: var(--paper-raised); padding: 16px; }
+  .stat .num { font-family: 'Tajawal', sans-serif; font-weight: 800; font-size: 24px; color: var(--forest-deep); }
+  .stat .lbl { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+
+  .compare-label { font-weight: 600; font-size: 14px; margin: 22px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .compare-label .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .compare-label.after .dot { background: var(--forest); }
+
+  .tbl-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; white-space: nowrap; }
+  th, td { padding: 8px 12px; text-align: right; border-bottom: 1px solid var(--line); }
+  th { background: var(--paper); color: var(--muted); font-weight: 600; font-size: 12px; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.empty-cell { color: var(--muted); font-style: italic; }
+  .more-rows { padding: 8px 12px; color: var(--muted); font-size: 12.5px; }
+
+  .actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+  button.primary {
+    background: var(--forest); color: #fff; border: none;
+    border-radius: 8px; padding: 13px 26px; font-size: 15px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  button.primary:hover { background: var(--forest-deep); }
+  button.primary:disabled { opacity: 0.5; cursor: default; }
+
+  .agent-section {
+    margin-top: 34px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+  }
+  .agent-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .agent-heading h3 { font-family: 'Tajawal', sans-serif; font-size: 17px; margin: 0; }
+  .badge-beta {
+    font-size: 11px; color: var(--amber); background: var(--amber-soft);
+    padding: 2px 9px; border-radius: 20px; font-weight: 600;
+  }
+  .agent-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 16px; }
+  #agentForm { display: flex; gap: 10px; flex-wrap: wrap; }
+  #agentInput {
+    flex: 1; min-width: 220px; resize: vertical; min-height: 46px; max-height: 140px;
+    font-family: inherit; font-size: 14.5px; padding: 11px 14px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--paper);
+    color: var(--ink);
+  }
+  #agentInput:focus { outline: none; border-color: var(--forest); }
+  button.secondary {
+    background: var(--ink); color: var(--paper);
+    border: none; border-radius: 8px; padding: 0 22px; font-size: 14.5px;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  button.secondary:disabled { opacity: 0.5; cursor: default; }
+  .agent-examples { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .agent-chip {
+    font-size: 12.5px; color: var(--muted); background: var(--paper);
+    border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px;
+    cursor: pointer;
+  }
+  .agent-chip:hover { border-color: var(--forest); color: var(--forest-deep); }
+  .agent-result { margin-top: 18px; }
+  .agent-answer {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 8px;
+    padding: 14px 16px; font-size: 14.5px; line-height: 1.7;
+  }
+  .agent-unavailable {
+    color: var(--muted); font-size: 13.5px; background: var(--paper);
+    border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px;
+  }
+
+  .error-box {
+    background: color-mix(in srgb, var(--danger) 10%, var(--paper-raised));
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    margin-top: 16px;
+  }
+
+  /* ---------- تذييل الصفحة ---------- */
+  .site-footer {
+    border-top: 1px solid var(--line);
+    background: var(--paper-raised);
+    margin-top: 40px;
+  }
+  .site-footer .footer-inner {
+    max-width: 880px; margin: 0 auto; padding: 26px 20px 34px;
+    text-align: center;
+  }
+  .footer-links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .footer-links a { color: var(--forest-deep); text-decoration: none; font-size: 14px; font-weight: 600; border-bottom: 1px solid transparent; }
+  .footer-links a:hover { border-bottom-color: currentColor; }
+  .footer-links .sep { color: var(--line); }
+  .footer-note { color: var(--muted); font-size: 12.5px; margin: 0 auto 12px; max-width: 62ch; }
+  .footer-copy { color: var(--muted); font-size: 12.5px; margin: 0; }
+
+  /* ---------- الجوال ---------- */
+  @media (max-width: 560px) {
+    .wrap { padding: 26px 14px 56px; }
+    .topbar-inner { padding: 10px 14px; }
+    .brand-tag { display: none; }
+    .card { padding: 18px; }
+    .diagram { grid-template-columns: 1fr; }
+    .diagram .arrow { text-align: center; transform: rotate(-90deg); }
+    .actions button.primary { width: 100%; }
+    #agentSubmit { width: 100%; }
+    #agentInput { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html" aria-label="مُرتّب — الصفحة الرئيسية">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="brandname">مُرتّب</span>
+    </a>
+    <nav class="topbar-nav">
+      <span class="brand-tag">تنظيف ملفات إكسل تلقائيًا</span>
+      <a href="privacy.html">الخصوصية</a>
+      <a href="terms.html">الشروط</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <header class="hero">
+    <h1>ارفع ملف إكسل فوضوي، وحمّله مرتب خلال ثوانٍ</h1>
+    <p class="lede">بدون ما تكتب صيغة أو دالة وحدة. الأداة تشتغل على ملفك فعليًا: تشيل الصفوف الفاضية، التكرارات، الأعمدة الميتة، وتوحّد شكل التواريخ — وترجع لك ملف جاهز.</p>
+    <div class="diagram" aria-hidden="true">
+      <div class="panel before">
+        <div class="cap">قبل</div>
+        <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+        <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+        <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+        <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+      </div>
+      <div class="arrow">←</div>
+      <div class="panel after">
+        <div class="cap">بعد</div>
+        <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+        <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="card" id="uploadCard">
+    <div id="dropzone">
+      <div class="icon">📄</div>
+      <div class="primary">اسحب ملف الإكسل هنا، أو اضغط للاختيار</div>
+      <div class="secondary">يدعم xlsx, xls, csv</div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+    </div>
+    <div class="status-line hidden" id="statusLine">
+      <div class="spinner"></div>
+      <span id="statusText">جاري القراءة والتنظيف…</span>
+    </div>
+    <div class="error-box hidden" id="errorBox"></div>
+  </div>
+
+  <div class="card hidden" id="resultCard">
+    <div class="filebar">
+      <div class="name" id="fileName"></div>
+      <button class="reset-btn" id="resetBtn">ابدأ بملف ثاني</button>
+    </div>
+
+    <div class="stats" id="statsGrid"></div>
+
+    <div class="compare-label"><span class="dot"></span> قبل التنظيف</div>
+    <div class="tbl-scroll" id="beforeTable"></div>
+
+    <div class="compare-label after"><span class="dot"></span> بعد التنظيف</div>
+    <div class="tbl-scroll" id="afterTable"></div>
+
+    <div class="actions">
+      <button class="primary" id="downloadBtn">تحميل الملف المرتب (xlsx)</button>
+    </div>
+
+    <div class="agent-section">
+      <div class="agent-heading">
+        <h3>اطلب أي شيء من بياناتك</h3>
+        <span class="badge-beta">تجريبي</span>
+      </div>
+      <p class="agent-sub">اكتب طلبك بكلامك العادي — فلترة، تجميع، حساب، أو سؤال عن البيانات.</p>
+      <form id="agentForm">
+        <textarea id="agentInput" placeholder="مثال: طلعلي الصفوف اللي فيها قيمة أكبر من ١٠٠٠"></textarea>
+        <button type="submit" class="secondary" id="agentSubmit">نفّذ</button>
+      </form>
+      <div class="agent-examples" id="agentExamples"></div>
+      <div class="status-line hidden" id="agentStatus">
+        <div class="spinner"></div>
+        <span>الوكيل يشتغل على طلبك…</span>
+      </div>
+      <div class="agent-result hidden" id="agentResult"></div>
+      <div class="agent-unavailable hidden" id="agentUnavailable">
+        الوكيل غير مفعّل بعد — أضف رابط الـ API الخاص بوكيلك في إعدادات الملف (CONFIG.AGENT_API_URL أعلى الكود).
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <nav class="footer-links" aria-label="روابط مهمة">
+      <a href="privacy.html">سياسة الخصوصية</a>
+      <span class="sep">·</span>
+      <a href="terms.html">شروط الاستخدام</a>
+    </nav>
+    <p class="footer-note">كل المعالجة تتم داخل متصفحك — ملفك ما يترفع لأي سيرفر. صندوق «اطلب أي شيء» فقط هو اللي يرسل بيانات الجدول المعروضة لخدمة ذكاء اصطناعي خارجية.</p>
+    <p class="footer-copy">© <span id="year">2026</span> مُرتّب — جميع الحقوق محفوظة</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const statusLine = document.getElementById('statusLine');
+  const statusText = document.getElementById('statusText');
+  const errorBox = document.getElementById('errorBox');
+  const uploadCard = document.getElementById('uploadCard');
+  const resultCard = document.getElementById('resultCard');
+  const fileNameEl = document.getElementById('fileName');
+  const resetBtn = document.getElementById('resetBtn');
+  const statsGrid = document.getElementById('statsGrid');
+  const beforeTableEl = document.getElementById('beforeTable');
+  const afterTableEl = document.getElementById('afterTable');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
+  let cleanedAoa = null;
+  let cleanedFileBase = 'ملف-مرتب';
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) handleFile(fileInput.files[0]);
+  });
+  resetBtn.addEventListener('click', () => {
+    resultCard.classList.add('hidden');
+    uploadCard.classList.remove('hidden');
+    errorBox.classList.add('hidden');
+    fileInput.value = '';
+    cleanedAoa = null;
+  });
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.classList.remove('hidden');
+    statusLine.classList.add('hidden');
+  }
+
+  function handleFile(file) {
+    errorBox.classList.add('hidden');
+    statusLine.classList.remove('hidden');
+    statusText.textContent = 'جاري القراءة والتنظيف…';
+    fileNameEl.textContent = file.name;
+    cleanedFileBase = file.name.replace(/\.[^.]+$/, '') || 'ملف-مرتب';
+
+    const reader = new FileReader();
+    reader.onerror = () => showError('تعذّر قراءة الملف. جرّب ملف ثاني.');
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, { type: 'array', cellDates: true });
+        const sheetName = wb.SheetNames[0];
+        const ws = wb.Sheets[sheetName];
+        // نسختان من نفس الورقة:
+        //   viewAoa  = للعرض فقط، بصيغة الملف الأصلية (زي ما يشوفها المستخدم).
+        //   dataAoa  = للمعالجة، بقيم خام (raw) عشان خلايا التاريخ ترجع كائنات
+        //              تاريخ حقيقية وتنوحّد بصيغة ISO. بدون هذي الخطوة ترجع
+        //              بصيغة إكسل المختصرة (1/4/26) وما تنعرف ولا تنوحّد أبدًا.
+        const viewAoa = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+        const dataAoa = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
+
+        if (!dataAoa.length) {
+          showError('الملف فاضي أو ما قدرنا نقرأ بيانات منه.');
+          return;
+        }
+
+        const result = cleanData(dataAoa);
+        cleanedAoa = result.aoa;
+
+        renderStats(result.stats);
+        renderTable(beforeTableEl, viewAoa.length ? viewAoa : dataAoa, 8);
+        renderTable(afterTableEl, result.aoa, 8);
+
+        statusLine.classList.add('hidden');
+        uploadCard.classList.add('hidden');
+        resultCard.classList.remove('hidden');
+      } catch (err) {
+        showError('صار خطأ أثناء معالجة الملف: ' + (err && err.message ? err.message : 'خطأ غير معروف'));
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // ---- cleaning logic ----
+  function cellIsEmpty(v) {
+    if (v === null || v === undefined) return true;
+    if (v instanceof Date) return false;
+    return String(v).trim() === '';
+  }
+
+  function trimCell(v) {
+    if (v instanceof Date) return v;
+    if (typeof v === 'string') return v.trim().replace(/\s+/g, ' ');
+    return v;
+  }
+
+  function formatDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  const DATE_PATTERNS = [
+    /^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/,   // d/m/yyyy or m/d/yyyy
+    /^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/    // yyyy/m/d
+  ];
+
+  function tryParseDateString(s) {
+    if (typeof s !== 'string') return null;
+    const t = s.trim();
+    let m = t.match(DATE_PATTERNS[0]);
+    if (m) {
+      let a = parseInt(m[1], 10), b = parseInt(m[2], 10), y = parseInt(m[3], 10);
+      // assume day/month if first part > 12, else ambiguous -> assume day/month (common regionally)
+      let day = a, month = b;
+      if (a > 12 && b <= 12) { day = a; month = b; }
+      else if (b > 12 && a <= 12) { day = b; month = a; }
+      if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        const d = new Date(y, month - 1, day);
+        if (!isNaN(d.getTime())) return d;
+      }
+      return null;
+    }
+    m = t.match(DATE_PATTERNS[1]);
+    if (m) {
+      const y = parseInt(m[1], 10), month = parseInt(m[2], 10), day = parseInt(m[3], 10);
+      if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        const d = new Date(y, month - 1, day);
+        if (!isNaN(d.getTime())) return d;
+      }
+    }
+    return null;
+  }
+
+  function cleanData(originalAoa) {
+    const header = originalAoa[0] || [];
+    let dataRows = originalAoa.slice(1);
+    const colCount = Math.max(header.length, ...dataRows.map(r => r.length), 0);
+
+    // pad rows to equal width
+    function pad(row) {
+      const r = row.slice();
+      while (r.length < colCount) r.push('');
+      return r;
+    }
+    const paddedHeader = pad(header).map(trimCell);
+    dataRows = dataRows.map(r => pad(r).map(trimCell));
+
+    // remove fully empty rows
+    const rowsBeforeEmpty = dataRows.length;
+    dataRows = dataRows.filter(r => !r.every(cellIsEmpty));
+    const emptyRowsRemoved = rowsBeforeEmpty - dataRows.length;
+
+    // remove exact duplicate rows
+    const seen = new Set();
+    const dedupedRows = [];
+    let duplicatesRemoved = 0;
+    for (const r of dataRows) {
+      const key = JSON.stringify(r.map(c => c instanceof Date ? c.getTime() : c));
+      if (seen.has(key)) { duplicatesRemoved++; continue; }
+      seen.add(key);
+      dedupedRows.push(r);
+    }
+    dataRows = dedupedRows;
+
+    // remove columns empty across header + all rows
+    const keepCols = [];
+    for (let c = 0; c < colCount; c++) {
+      const headerEmpty = cellIsEmpty(paddedHeader[c]);
+      const allDataEmpty = dataRows.every(r => cellIsEmpty(r[c]));
+      if (!(headerEmpty && allDataEmpty)) keepCols.push(c);
+    }
+    const emptyColsRemoved = colCount - keepCols.length;
+
+    let finalHeader = keepCols.map(c => paddedHeader[c]);
+    let finalRows = dataRows.map(r => keepCols.map(c => r[c]));
+
+    // normalize date-like columns
+    let dateColsNormalized = 0;
+    for (let c = 0; c < finalHeader.length; c++) {
+      let dateCount = 0, nonEmptyCount = 0;
+      const parsedCache = [];
+      for (const r of finalRows) {
+        const v = r[c];
+        if (cellIsEmpty(v)) { parsedCache.push(null); continue; }
+        nonEmptyCount++;
+        if (v instanceof Date) { parsedCache.push(v); dateCount++; continue; }
+        const parsed = tryParseDateString(v);
+        parsedCache.push(parsed);
+        if (parsed) dateCount++;
+      }
+      if (nonEmptyCount > 0 && dateCount / nonEmptyCount >= 0.7) {
+        dateColsNormalized++;
+        finalRows.forEach((r, i) => {
+          if (parsedCache[i] instanceof Date) r[c] = formatDate(parsedCache[i]);
+        });
+      } else {
+        // still format real Date objects in non-date-majority columns, as strings
+        finalRows.forEach(r => { if (r[c] instanceof Date) r[c] = formatDate(r[c]); });
+      }
+    }
+
+    const finalAoa = [finalHeader, ...finalRows];
+
+    return {
+      aoa: finalAoa,
+      stats: {
+        originalRows: (originalAoa.length - 1),
+        finalRows: finalRows.length,
+        emptyRowsRemoved,
+        duplicatesRemoved,
+        emptyColsRemoved,
+        dateColsNormalized
+      }
+    };
+  }
+
+  function renderStats(s) {
+    const items = [
+      { num: s.finalRows, lbl: 'صف نهائي (من ' + s.originalRows + ')' },
+      { num: s.emptyRowsRemoved, lbl: 'صف فاضي محذوف' },
+      { num: s.duplicatesRemoved, lbl: 'صف مكرر محذوف' },
+      { num: s.emptyColsRemoved, lbl: 'عمود فاضي محذوف' },
+      { num: s.dateColsNormalized, lbl: 'عمود تاريخ موحّد' }
+    ];
+    statsGrid.innerHTML = items.map(it =>
+      '<div class="stat"><div class="num">' + it.num + '</div><div class="lbl">' + it.lbl + '</div></div>'
+    ).join('');
+  }
+
+  function esc(v) {
+    if (v === null || v === undefined) return '';
+    const s = (v instanceof Date) ? formatDate(v) : String(v);
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderTable(container, aoa, maxRows) {
+    if (!aoa.length) { container.innerHTML = '<div class="more-rows">لا يوجد بيانات</div>'; return; }
+    const header = aoa[0];
+    const rows = aoa.slice(1);
+    const shown = rows.slice(0, maxRows);
+    let html = '<table><thead><tr>';
+    header.forEach(h => { html += '<th>' + (esc(h) || '&nbsp;') + '</th>'; });
+    html += '</tr></thead><tbody>';
+    shown.forEach(r => {
+      html += '<tr>';
+      header.forEach((_, i) => {
+        const v = r[i];
+        const empty = cellIsEmpty(v);
+        html += '<td class="' + (empty ? 'empty-cell' : '') + '">' + (empty ? '—' : esc(v)) + '</td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    if (rows.length > maxRows) {
+      html += '<div class="more-rows">+ ' + (rows.length - maxRows) + ' صف إضافي</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  downloadBtn.addEventListener('click', async () => {
+    if (!cleanedAoa) return;
+    downloadBtn.disabled = true;
+    const originalLabel = downloadBtn.textContent;
+    downloadBtn.textContent = 'جاري التجهيز…';
+    try {
+      const ws = XLSX.utils.aoa_to_sheet(cleanedAoa);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'مرتب');
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+      const hasClaudeRuntime = (typeof claude !== 'undefined' && claude && typeof claude.use === 'function');
+      const downloads = hasClaudeRuntime ? await claude.use('downloads') : null;
+      if (!downloads) {
+        // fallback: plain browser download if capability unavailable
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = cleanedFileBase + '-مرتب.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } else {
+        await downloads.save({ filename: cleanedFileBase + '-مرتب.xlsx', data: blob });
+      }
+    } catch (err) {
+      // declined or failed — silent, user can retry
+    } finally {
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = originalLabel;
+    }
+  });
+
+  // =====================================================================
+  // إعدادات الوكيل
+  // =====================================================================
+  // حط هنا رابط الـ API الخاص بالوكيل (سيرفرك على Render مثلاً). الصفحة
+  // ترسل POST بصيغة JSON وتتوقع رد بنفس الصيغة الموضحة تحت. لين ما تحطه،
+  // صندوق "اطلب أي شيء" يبين رسالة "غير مفعل" بدل ما يفشل بصمت.
+  //
+  // شكل الطلب اللي ترسله الصفحة (POST body):
+  //   { "columns": [...], "rows": [[...], ...], "totalRows": N,
+  //     "truncated": bool, "query": "طلب المستخدم بالعربي" }
+  //
+  // شكل الرد المتوقع من السيرفر (JSON):
+  //   { "type": "table", "columns": [...], "rows": [[...], ...] }
+  //   أو
+  //   { "type": "text", "answer": "..." }
+  // =====================================================================
+  const CONFIG = {
+    AGENT_API_URL: 'https://REPLACE-WITH-YOUR-RENDER-URL.onrender.com/agent'
+  };
+
+  function agentIsConfigured() {
+    return !!CONFIG.AGENT_API_URL && CONFIG.AGENT_API_URL.indexOf('REPLACE-WITH') === -1;
+  }
+
+  async function callAgent(headers, dataForPrompt, truncated, totalRows, query) {
+    if (!agentIsConfigured()) return { unavailable: true };
+    const res = await fetch(CONFIG.AGENT_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        columns: headers,
+        rows: dataForPrompt,
+        totalRows: totalRows,
+        truncated: truncated,
+        query: query
+      })
+    });
+    if (!res.ok) throw new Error('agent_http_' + res.status);
+    return await res.json();
+  }
+
+  // ---- free-form agent request box ----
+  const agentForm = document.getElementById('agentForm');
+  const agentInput = document.getElementById('agentInput');
+  const agentSubmit = document.getElementById('agentSubmit');
+  const agentStatus = document.getElementById('agentStatus');
+  const agentResult = document.getElementById('agentResult');
+  const agentUnavailable = document.getElementById('agentUnavailable');
+  const agentExamples = document.getElementById('agentExamples');
+
+  const EXAMPLE_PROMPTS = [
+    'كم عدد الصفوف الفريدة؟',
+    'رتب البيانات تنازليًا حسب أول عمود رقمي',
+    'لخصلي البيانات في جملتين'
+  ];
+  agentExamples.innerHTML = EXAMPLE_PROMPTS.map(p =>
+    '<span class="agent-chip">' + esc(p) + '</span>'
+  ).join('');
+  agentExamples.addEventListener('click', (e) => {
+    if (e.target.classList.contains('agent-chip')) {
+      agentInput.value = e.target.textContent;
+      agentInput.focus();
+    }
+  });
+
+  agentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const query = agentInput.value.trim();
+    if (!query || !cleanedAoa) return;
+
+    agentResult.classList.add('hidden');
+    agentUnavailable.classList.add('hidden');
+    agentStatus.classList.remove('hidden');
+    agentSubmit.disabled = true;
+
+    try {
+      const headers = cleanedAoa[0];
+      const rows = cleanedAoa.slice(1);
+      const MAX_ROWS = 150;
+      const truncated = rows.length > MAX_ROWS;
+      const dataForPrompt = rows.slice(0, MAX_ROWS);
+
+      const out = await callAgent(headers, dataForPrompt, truncated, rows.length, query);
+
+      if (out && out.unavailable) {
+        agentStatus.classList.add('hidden');
+        agentUnavailable.classList.remove('hidden');
+        agentSubmit.disabled = false;
+        return;
+      }
+
+      agentStatus.classList.add('hidden');
+      agentSubmit.disabled = false;
+      agentResult.classList.remove('hidden');
+
+      if (out && out.type === 'table' && Array.isArray(out.rows)) {
+        const aoa = [out.columns || headers, ...out.rows];
+        agentResult.innerHTML = '';
+        const scrollDiv = document.createElement('div');
+        scrollDiv.className = 'tbl-scroll';
+        agentResult.appendChild(scrollDiv);
+        renderTable(scrollDiv, aoa, 20);
+      } else if (out && out.type === 'text') {
+        agentResult.innerHTML = '<div class="agent-answer">' + esc(out.answer || '') + '</div>';
+      } else {
+        agentResult.innerHTML = '<div class="agent-answer">' + esc(JSON.stringify(out)) + '</div>';
+      }
+    } catch (err) {
+      agentStatus.classList.add('hidden');
+      agentSubmit.disabled = false;
+      agentResult.classList.remove('hidden');
+      agentResult.innerHTML = '<div class="agent-answer">تعذّر تنفيذ الطلب. جرّب صياغة مختلفة أو حاول مرة ثانية.</div>';
+    }
+  });
+})();
+</script>
+</body>
+</html>

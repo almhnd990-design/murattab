@@ -1,0 +1,21 @@
+{
+  "name": "murattab-agent-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend proxy for the مُرتّب free-form agent box. Exposes POST /agent and forwards the request to an AI model, returning strict JSON.",
+  "type": "module",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
