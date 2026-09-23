@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>شروط الاستخدام — مُرتّب</title>
-<meta name="description" content="شروط استخدام موقع مُرتّب: أداة تنظيف ملفات الإكسل داخل المتصفح.">
+<title>شروط الاستخدام — مُرتّب إكسل</title>
+<meta name="description" content="شروط استخدام موقع مُرتّب إكسل: أداة تنظيف ملفات الإكسل داخل المتصفح.">
 <meta name="theme-color" content="#2D5F4C">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232D5F4C'/%3E%3Crect x='8' y='11' width='16' height='2.4' rx='1.2' fill='%23FAF8F3'/%3E%3Crect x='8' y='18' width='10' height='2.4' rx='1.2' fill='%23FAF8F3'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Tajawal:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #1C1E21; --paper: #FAF8F3; --paper-raised: #FFFFFF; --line: #DEDACE;
@@ -37,20 +37,16 @@
     font-family: 'IBM Plex Sans Arabic', sans-serif; line-height: 1.75;
   }
   .topbar { position: sticky; top: 0; z-index: 50; background: var(--header-bg); color: var(--header-ink); box-shadow: 0 1px 0 rgba(0,0,0,.10); }
-  .topbar-inner { max-width: 880px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .topbar-inner { max-width: 960px; margin: 0 auto; padding: 16px 26px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
   .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
-  .brand .mark { width: 30px; height: 30px; border-radius: 7px; background: var(--header-ink); position: relative; flex: none; }
-  .brand .mark::before, .brand .mark::after { content: ""; position: absolute; right: 7px; left: 7px; height: 2px; background: var(--header-bg); border-radius: 1px; }
-  .brand .mark::before { top: 11px; }
-  .brand .mark::after { top: 17px; width: 60%; left: auto; }
-  .brandname { font-family: 'Tajawal', sans-serif; font-weight: 800; font-size: 19px; }
+  .brandname { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-weight: 800; font-size: 19px; }
   .topbar-nav a { color: inherit; text-decoration: none; font-size: 13.5px; opacity: .9; border-bottom: 1px solid transparent; }
   .topbar-nav a:hover { opacity: 1; border-bottom-color: currentColor; }
 
-  main { max-width: 760px; margin: 0 auto; padding: 40px 20px 70px; }
-  h1 { font-family: 'Tajawal', sans-serif; font-weight: 800; font-size: clamp(26px, 4.5vw, 36px); margin: 0 0 6px; }
+  main { max-width: 800px; margin: 0 auto; padding: 40px 26px 70px; }
+  h1 { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-weight: 800; font-size: clamp(26px, 4.5vw, 36px); margin: 0 0 6px; }
   .updated { color: var(--muted); font-size: 13px; margin: 0 0 26px; }
-  h2 { font-family: 'Tajawal', sans-serif; font-size: 19px; margin: 30px 0 8px; }
+  h2 { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 19px; margin: 30px 0 8px; }
   p, li { font-size: 15px; }
   ul { padding-inline-start: 20px; }
   li { margin-bottom: 6px; }
@@ -63,7 +59,7 @@
   a { color: var(--forest-deep); }
   .todo { background: #F4E3D3; color: #8a4a12; border-radius: 5px; padding: 1px 6px; font-weight: 600; }
   .site-footer { border-top: 1px solid var(--line); background: var(--paper-raised); }
-  .site-footer .footer-inner { max-width: 880px; margin: 0 auto; padding: 24px 20px 32px; text-align: center; }
+  .site-footer .footer-inner { max-width: 960px; margin: 0 auto; padding: 24px 26px 32px; text-align: center; }
   .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 10px; }
   .footer-links a { text-decoration: none; font-size: 14px; font-weight: 600; border-bottom: 1px solid transparent; }
   .footer-links a:hover { border-bottom-color: currentColor; }
@@ -75,9 +71,8 @@
 <body>
 <header class="topbar">
   <div class="topbar-inner">
-    <a class="brand" href="index.html" aria-label="مُرتّب — الصفحة الرئيسية">
-      <span class="mark" aria-hidden="true"></span>
-      <span class="brandname">مُرتّب</span>
+    <a class="brand" href="index.html" aria-label="مُرتّب إكسل — الصفحة الرئيسية">
+      <span class="brandname">مُرتّب إكسل</span>
     </a>
     <nav class="topbar-nav"><a href="index.html">رجوع للموقع</a></nav>
   </div>
@@ -89,7 +84,7 @@
 
   <div class="summary">
     <ul>
-      <li>مُرتّب أداة مجانية لتنظيف ملفات الإكسل، وتُقدَّم «كما هي» دون أي ضمانات.</li>
+      <li>مُرتّب إكسل أداة مجانية لتنظيف ملفات الإكسل، وتُقدَّم «كما هي» دون أي ضمانات.</li>
       <li>أنت مسؤول عن ملفاتك وعن التأكد من صحة النتائج قبل الاعتماد عليها.</li>
       <li>مخرجات الذكاء الاصطناعي قابلة للخطأ — راجعها دائمًا.</li>
       <li>يُمنع استخدام الخدمة في أي غرض غير قانوني أو لإيذاء الآخرين.</li>
@@ -98,12 +93,12 @@
 
   <h2>١) قبول الشروط</h2>
   <p>
-    باستخدامك موقع مُرتّب فإنك توافق على هذه الشروط. إذا لم توافق عليها، يُرجى عدم استخدام الموقع.
+    باستخدامك موقع مُرتّب إكسل فإنك توافق على هذه الشروط. إذا لم توافق عليها، يُرجى عدم استخدام الموقع.
   </p>
 
   <h2>٢) وصف الخدمة</h2>
   <p>
-    مُرتّب أداة تعمل داخل متصفحك لتنظيف ملفات البيانات (xlsx / xls / csv): حذف الصفوف الفاضية
+    مُرتّب إكسل أداة تعمل داخل متصفحك لتنظيف ملفات البيانات (xlsx / xls / csv): حذف الصفوف الفاضية
     والمكررة والأعمدة الفارغة، وتوحيد صيغة التواريخ، وإتاحة تنزيل الملف المنظّف. كما يوفّر الموقع
     صندوق «اطلب أي شيء» الذي يعتمد على خدمات ذكاء اصطناعي خارجية لتفسير طلبك وتنفيذه على البيانات.
   </p>
@@ -131,7 +126,7 @@
 
   <h2>٦) حدود المسؤولية</h2>
   <p>
-    إلى الحد الذي تسمح به الأنظمة المعمول بها، لا يتحمّل مُرتّب أو القائمون عليه أي مسؤولية عن أي
+    إلى الحد الذي تسمح به الأنظمة المعمول بها، لا يتحمّل مُرتّب إكسل أو القائمون عليه أي مسؤولية عن أي
     أضرار مباشرة أو غير مباشرة، أو فقدان بيانات، أو خسائر تجارية أو معنوية ناتجة عن استخدام
     الموقع أو تعذّر استخدامه.
   </p>
@@ -168,7 +163,7 @@
       <span class="sep">·</span>
       <a href="terms.html">شروط الاستخدام</a>
     </nav>
-    <p class="footer-copy">© <span id="year">2026</span> مُرتّب — جميع الحقوق محفوظة</p>
+    <p class="footer-copy">© <span id="year">2026</span> مُرتّب إكسل — جميع الحقوق محفوظة</p>
   </div>
 </footer>
 
