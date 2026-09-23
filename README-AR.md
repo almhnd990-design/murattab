@@ -99,68 +99,43 @@ powershell -ExecutionPolicy Bypass -File scripts\check-endpoint.ps1 -Url http://
 
 ---
 
-## 4) النشر على Render (الطريقة الموصى بها) — خطوة بخطوة
+## 4) النشر على Render — خطوة بخطوة
 
-Render مجاني للبداية، وما يبغى بطاقة في أغلب الحالات، والرابط اللي يعطيك هو نفسه اللي
-تحطه في الموقع. (الأرقام والصفحات تتغير، فلو لقيت اختلاف بسيط في الأسماء دور على الأقرب لها.)
+Render مجاني للبداية، والرابط اللي يعطيك هو نفسه اللي تحطه في الموقع.
 
-### 4.1 ارفع الملفات على GitHub
-1. سوّ حساب على <https://github.com> (Sign up) — مجاني.
-2. من الصفحة الرئيسية اضغط الزر الأخضر **New** لإنشاء مستودع جديد.
-3. **Repository name**: `murattab-agent-server` → اختر **Private** (أنسب) → **Create repository**.
-4. في الصفحة الجديدة اضغط على رابط **uploading an existing file**.
-5. افتح مجلد المشروع على جهازك، وحدّد **الملفات والمجلدات التالية فقط** واسحبها لصفحة GitHub:
-   - المجلدات: `api` ، `lib` ، `scripts`
-   - الملفات: `app.js` ، `server.js` ، `package.json` ، `package-lock.json` ،
-     `render.yaml` ، `vercel.json` ، `example-request.json` ، `README-AR.md`
-   - **لا تسحب**: `node_modules` (ثقيل جدًا) ولا `.npm-cache` ولا `.env` (فيه المفتاح) ولا `.dev`.
-6. اكتب في خانة الوصف: `backend for murattab` → اضغط **Commit changes**.
+### 4.1 الملفات على GitHub ✅ (خلصت)
+المستودع جاهز ومرفوع: <https://github.com/almhnd990-design/murattab> — عام (Public) وفرعه `main`.
 
-> ملاحظة عن الملفات المخفية (تبدأ بنقطة): لو ما ظهرت عندك في المستكشف، فعّل
-> **View → Show → Hidden items** في ويندوز. مو ضرورية للنشر، لكن `.env.example` و`.gitignore`
-> حلو تكون موجودة.
+### 4.2 الطريقة الأسرع: Blueprint (٤ نقرات، تنشئ السيرفر والموقع معًا)
+ملف `render.yaml` في المستودع يعرّف **الخدمتين** جاهزتين، فما تحتاج تضبط أي حقل بنفسك:
+1. افتح <https://dashboard.render.com> وسجّل دخول بحساب GitHub.
+2. **New +** → **Blueprint**.
+3. اختر مستودع `murattab` → **Connect**.
+4. بيعرض لك الخدمتين (`murattab-agent` و`murattab-site`) على الخطة المجانية → اضغط **Apply**.
 
-### 4.2 اربط Render بـ GitHub
-1. افتح <https://render.com> → **Get Started** → سجّل دخول بحساب GitHub (أسهل طريقة: **GitHub**).
-2. وافق على صلاحية قراءة المستودعات (تقدر تحدد مستودع واحد فقط).
+بعد ٢–٣ دقايق بيطلع لك الرابطان:
+- السيرفر: `https://murattab-agent.onrender.com`
+- الموقع: `https://murattab-site.onrender.com`
 
-### 4.3 أنشئ السيرفر
-1. من لوحة Render اضغط **New +** → **Web Service**.
-2. اختر المستودع `murattab-agent-server` → **Connect**.
-3. املأ الحقول هذي **بالضبط**:
+> الخدمتان تشتغلان حاليًا بـ `AI_PROVIDER=mock` (ردود تجريبية) — **بدون أي مفتاح وببلاش**.
+> لتشغيل الذكاء الحقيقي: صفحة `murattab-agent` → **Environment** → بدّل `AI_PROVIDER` إلى `deepseek`
+> وأضف `DEEPSEEK_API_KEY` بمفتاحك → **Save Changes** (يعيد النشر تلقائيًا).
 
-| الحقل | القيمة |
-|---|---|
-| **Name** | `murattab-agent` (أو أي اسم) |
-| **Language / Runtime** | `Node` |
-| **Region** | `Frankfurt (EU Central)` — الأقرب للخليج |
-| **Branch** | `main` |
-| **Root Directory** | اتركه فاضي |
-| **Build Command** | `npm install` |
-| **Start Command** | `npm start` |
-| **Instance Type** | `Free` |
+### 4.3 الطريقة اليدوية (بديل، لو ما ضبط الـ Blueprint)
+1. **السيرفر**: New + → **Web Service** → اختر المستودع → Language `Node` · Branch `main` ·
+   Build `npm install` · Start `npm start` · Instance `Free` · Region `Frankfurt` ·
+   وأضف متغير بيئة واحد: `AI_PROVIDER` = `mock`.
+2. **الموقع**: New + → **Static Site** → نفس المستودع → **Root Directory** = `site` ·
+   **Build Command** = اتركه فاضي · **Publish Directory** = `.`
 
-4. انزل لقسم **Environment Variables** واضغط **Add Environment Variable** وأضف هذي:
-
-| Key | Value |
-|---|---|
-| `AI_PROVIDER` | `deepseek` (أو `anthropic` / `openai`) |
-| `DEEPSEEK_API_KEY` | مفتاحك `sk-...` من DeepSeek |
-| `DEEPSEEK_MODEL` | `deepseek-flash` |
-| `ALLOWED_ORIGINS` | `*` مبدئيًا — بعدين حددها لدومين موقعك |
-
-> لو اخترت Claude بدل DeepSeek، بدّل الثلاثة الأولى إلى:
-> `AI_PROVIDER` = `anthropic` و`ANTHROPIC_API_KEY` = مفتاحك و`ANTHROPIC_MODEL` = `claude-sonnet-5`.
-
-5. اضغط **Create Web Service** وانتظر ٢–٣ دقايق لين تخلص عملية البناء (**Live** بالأخضر).
-
-### 4.4 خذ الرابط واختبره
-1. فوق الصفحة بتحصل الرابط، شكله: `https://murattab-agent.onrender.com`
-   (لو اخترت اسم ثاني، الرابط يتغير بنفس النمط).
-2. افتح في المتصفح: `https://murattab-agent.onrender.com/health`
-   لازم يبين `{"ok":true,...,"provider":"anthropic",...}`.
-   **لو بين `ok:false`** معناها المفتاح غلط أو ناقص → راجع قسم حل المشاكل.
-3. رقم ١ اختبار حقيقي من جهازك (ويندوز):
+### 4.4 تأكد أن الرابطين شغالين
+1. افتح `https://murattab-agent.onrender.com/health` → لازم يبين:
+   ```json
+   {"ok":true,"service":"murattab-agent-server","provider":"mock","model":"mock"}
+   ```
+   **لو بين `ok:false`** معناها المزوّد أو المفتاح غلط → راجع قسم حل المشاكل.
+2. افتح `https://murattab-site.onrender.com` → لازم يفتح الموقع بالرأس الأخضر والتذييل.
+3. اختبار حقيقي للـ endpoint من جهازك (ويندوز):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\check-endpoint.ps1 -Url https://murattab-agent.onrender.com/agent
@@ -168,7 +143,7 @@ powershell -ExecutionPolicy Bypass -File scripts\check-endpoint.ps1 -Url https:/
 
 لازم يبين: الحالة `200` ورد JSON صحيح (جدول بـ `columns` و`rows`، أو نص بـ `answer`) ✅
 
-**رابط الـ endpoint النهائي اللي تحطه في الموقع:**
+**رابط الـ endpoint النهائي اللي تحطه في الموقع (شرحه في 5.1):**
 
 ```
 https://murattab-agent.onrender.com/agent

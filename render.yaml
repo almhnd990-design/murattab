@@ -1,27 +1,40 @@
+# نشر جاهز لـ Render: ينشئ السيرفر + الموقع بضغطة وحدة.
+# الطريقة: Render → New + → Blueprint → اختر مستودع murattab → Apply
+# ملاحظة: ما فيه أي مفتاح في هذا الملف (المفاتيح تُضاف من لوحة Render فقط).
+
 services:
+  # 1) السيرفر الخلفي — POST /agent
   - type: web
     name: murattab-agent
     runtime: node
     plan: free
     region: frankfurt
+    branch: main
     buildCommand: npm install
     startCommand: npm start
     envVars:
+      # الوضع الحالي: تجريبي مجاني بدون أي مفتاح (ردود تجريبية تثبت أن كل شي موصول).
+      # لتشغيل الذكاء الحقيقي: بدّل القيمة إلى deepseek وأضف DEEPSEEK_API_KEY
+      # (أو anthropic + ANTHROPIC_API_KEY، أو openai + OPENAI_API_KEY).
       - key: AI_PROVIDER
-        value: deepseek
-      - key: DEEPSEEK_MODEL
-        value: deepseek-flash
+        value: mock
       - key: MAX_TOKENS
         value: "4096"
+      - key: REQUEST_TIMEOUT_MS
+        value: "50000"
       - key: RATE_LIMIT_PER_MIN
         value: "30"
       - key: ALLOWED_ORIGINS
         value: "*"
-      # هذي القيم تحطها يدويًا في لوحة Render (سريّة، ما تنكتب في الملف)
-      - key: DEEPSEEK_API_KEY
-        sync: false
-      # لو اخترت Claude أو OpenAI بدل DeepSeek:
-      - key: ANTHROPIC_API_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
+      - key: MAX_ROWS
+        value: "400"
+      - key: MAX_RESULT_ROWS
+        value: "200"
+
+  # 2) الموقع (ملفات ثابتة من مجلد site) — index.html + privacy.html + terms.html
+  - type: web
+    name: murattab-site
+    runtime: static
+    branch: main
+    staticPublishPath: site
+    pullRequestPreviewsEnabled: false
