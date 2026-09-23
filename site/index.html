@@ -105,34 +105,8 @@
     max-width: 22ch;
     text-wrap: balance;
   }
-  .lede { color: var(--muted); font-size: 17px; max-width: 58ch; margin: 0; }
-  .hero-note { margin: 14px 0 0; font-size: 13.5px; color: var(--forest-deep); font-weight: 600; }
 
-  /* ---------- عناوين الأقسام ---------- */
-  .section-head { margin: 0 0 20px; }
-  .section-head h2 {
-    font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
-    font-size: clamp(19px, 3vw, 23px); font-weight: 800; margin: 0 0 6px;
-  }
-  .section-head p { color: var(--muted); font-size: 14.5px; margin: 0; max-width: 62ch; }
-
-  /* ---------- بطاقات الأدوات ---------- */
-  .tools-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-  .tool-card {
-    display: block; text-decoration: none; color: inherit;
-    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 18px; transition: border-color .15s ease, background .15s ease, transform .15s ease;
-  }
-  .tool-card:hover { border-color: var(--forest); background: color-mix(in srgb, var(--forest) 5%, transparent); transform: translateY(-2px); }
-  .tool-card:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
-  .tool-icon { font-size: 22px; line-height: 1; margin-bottom: 10px; }
-  .tool-card h3 { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 16px; margin: 0 0 6px; }
-  .tool-card p { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; line-height: 1.65; }
-  .tool-cta { color: var(--forest-deep); font-size: 13.5px; font-weight: 700; }
-  .tool-chip {
-    display: inline-block; font-size: 11.5px; color: var(--amber); background: var(--amber-soft);
-    border-radius: 20px; padding: 2px 9px; font-weight: 600; margin-bottom: 8px;
-  }
+  /* ---------- تنبيه شريط الأدوات ---------- */
   .tool-tip {
     margin-top: 16px; font-size: 13px; color: var(--forest-deep);
     background: color-mix(in srgb, var(--forest) 7%, transparent);
@@ -456,6 +430,89 @@
   .stat .num.c-mod { color: var(--amber); }
   .agent-section--card { margin-top: 0; padding-top: 0; border-top: none; }
 
+  /* ================= التخطيط والتسلسل البصري المُعاد ================= */
+  .sec { margin-top: 60px; }
+  .wrap > .sec:first-of-type { margin-top: 0; }
+  .brand { gap: 9px; }
+  .brand-logo { width: 22px; height: 22px; flex: none; }
+
+  /* --- الهيرو (النجم) --- */
+  .hero-card {
+    padding: 32px;
+    box-shadow: 0 8px 28px rgba(45, 95, 76, .08);
+    border-color: color-mix(in srgb, var(--forest) 22%, var(--line));
+  }
+  .hero-card h1 {
+    font-size: clamp(30px, 5vw, 48px);
+    line-height: 1.2;
+    margin: 0 0 14px;
+    max-width: 24ch;
+  }
+  .hero-desc { color: var(--muted); font-size: 18px; line-height: 1.7; margin: 0 0 22px; max-width: 56ch; }
+  #dropzone {
+    min-height: 250px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  #dropzone .drop-icon { width: 40px; height: 40px; color: var(--forest); margin-bottom: 12px; }
+  #dropzone .primary { font-size: 16.5px; }
+
+  /* --- اطلب أي شيء (الميزة الثانية) --- */
+  .agent-card {
+    padding: 28px 32px;
+    border-color: color-mix(in srgb, var(--forest) 18%, var(--line));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--forest) 4%, var(--paper-raised)) 0%, var(--paper-raised) 55%);
+  }
+  .agent-card .agent-heading h2 {
+    font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+    font-size: clamp(23px, 3.4vw, 32px); font-weight: 800; margin: 0;
+  }
+  .agent-card .agent-heading .icon { width: 26px; height: 26px; color: var(--forest); flex: none; }
+  .agent-card .agent-sub { font-size: 15px; margin: 8px 0 16px; }
+  .agent-card #agentInput { min-height: 56px; font-size: 15px; }
+  .agent-card #agentSubmit { padding: 0 26px; }
+
+  /* --- الأدوات (شريط مضغوط) --- */
+  .tools-compact h2 { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 18px; font-weight: 800; margin: 0 0 12px; }
+  .tools-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .tool-mini {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px; text-decoration: none; color: inherit; max-height: 100px;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .tool-mini:hover { border-color: var(--forest); background: color-mix(in srgb, var(--forest) 5%, transparent); }
+  .tool-mini:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
+  .tool-mini .tool-icon { width: 24px; height: 24px; color: var(--forest); flex: none; }
+  .tool-mini .tool-name { display: block; font-size: 14px; font-weight: 700; }
+  .tool-mini .tool-note { display: block; font-size: 12px; color: var(--muted); }
+
+  /* --- لماذا مُرتّب إكسل --- */
+  .why-section {
+    padding: 28px 30px; background: var(--paper);
+    border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  .why-section h2 { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 24px; font-weight: 800; margin: 0 0 18px; }
+  .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .why-item { display: flex; gap: 12px; align-items: flex-start; background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .why-item svg { width: 22px; height: 22px; color: var(--forest); flex: none; margin-top: 2px; }
+  .why-item strong { display: block; font-size: 15px; margin-bottom: 3px; }
+  .why-item span { color: var(--muted); font-size: 13.5px; }
+
+  .footer-contact { color: var(--muted); font-size: 12.5px; margin: 8px 0 0; }
+  .footer-contact a { color: var(--forest-deep); }
+
+  @media (max-width: 560px) {
+    .sec { margin-top: 40px; }
+    .hero-card { padding: 20px; }
+    .hero-card h1 { font-size: 36px; }
+    .hero-desc { font-size: 16px; }
+    #dropzone { min-height: 200px; }
+    .tools-row { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .tool-mini { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .why-grid { grid-template-columns: 1fr; }
+    .agent-card { padding: 22px 18px; }
+  }
+
   /* ---------- تذييل الصفحة ---------- */
   .site-footer {
     border-top: 1px solid var(--line);
@@ -480,8 +537,7 @@
     .brandname { font-size: 17px; }
     .topbar-nav { gap: 13px; }
     .topbar-nav a { font-size: 12.5px; }
-    .tools-grid { grid-template-columns: 1fr; }
-    .card { padding: 18px; }
+      .card { padding: 18px; }
     .actions button.primary { width: 100%; }
     .split-btn, .split-btn-ghost { flex: 1 1 100%; }
     .mem-btn { flex: 1 1 100%; }
@@ -494,10 +550,15 @@
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="index.html" aria-label="مُرتّب إكسل — الصفحة الرئيسية">
+      <svg class="brand-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+        <path d="M14 3v5h5"/>
+        <rect x="8.5" y="12" width="7" height="5.5" rx="0.6"/>
+        <path d="M8.5 14.7h7"/>
+      </svg>
       <span class="brandname">مُرتّب إكسل</span>
     </a>
     <nav class="topbar-nav" aria-label="التنقل الرئيسي">
-      <a href="#toolsSection">الأدوات</a>
       <a href="privacy.html">الخصوصية</a>
       <a href="terms.html">الشروط</a>
     </nav>
@@ -506,57 +567,18 @@
 
 <div class="wrap">
 
-  <header class="hero">
-    <h1>مساعدك الذكي لتنظيم ملفات Excel</h1>
-    <p class="lede">نظّف، قارن، قسّم، وعلّم أدواتك — كل ما تحتاجه لملفات Excel في مكان واحد. بدون صيغ، بدون دوال، وبدون تعديل يدوي.</p>
-    <p class="hero-note">🔒 كل المعالجة داخل متصفحك — ملفك ما يترفع لأي سيرفر.</p>
-  </header>
-
-  <section class="card" id="toolsSection">
-    <div class="section-head">
-      <h2>أدوات مُرتّب إكسل</h2>
-      <p>اختر الأداة اللي تحتاجها — كلها تشتغل داخل متصفحك، بدون تثبيت وبدون رفع ملفات.</p>
-    </div>
-    <div class="tools-grid">
-      <a class="tool-card" href="#uploadCard">
-        <div class="tool-icon" aria-hidden="true">🧹</div>
-        <h3>تنظيف وترتيب ملفات Excel</h3>
-        <p>نظّف ورتّب ملف Excel تلقائيًا بدون صيغ أو تعديل يدوي.</p>
-        <span class="tool-cta">ابدأ الآن ←</span>
-      </a>
-      <a class="tool-card" href="#compareSection">
-        <div class="tool-icon" aria-hidden="true">🆚</div>
-        <h3>مقارنة نسختين</h3>
-        <p>قارن بين نسختين من ملف Excel واعرف ما الذي تغيّر بينهما.</p>
-        <span class="tool-cta">افتح الأداة ←</span>
-      </a>
-      <a class="tool-card" href="#uploadCard" data-needs-file="1" data-ready="#splitSection">
-        <div class="tool-icon" aria-hidden="true">✂️</div>
-        <h3>تقسيم ملف Excel</h3>
-        <p>وزّع صفوف ملفك على ملفات منفصلة حسب الفرع أو المدينة أو أي عمود — تنزيل فردي أو ZIP واحد.</p>
-        <span class="tool-chip">تظهر بعد رفع الملف</span>
-        <span class="tool-cta">ارفع ملفك أولًا ←</span>
-      </a>
-      <a class="tool-card" href="#uploadCard" data-needs-file="1" data-ready="#memSection">
-        <div class="tool-icon" aria-hidden="true">🧠</div>
-        <h3>ذاكرة التفضيلات</h3>
-        <p>علّمها التصحيحات مرة وحدة (جده ← جدة) ووحّد أرقام الجوال — وتتطبق تلقائيًا على كل ملف بعدين.</p>
-        <span class="tool-chip">تظهر بعد رفع الملف</span>
-        <span class="tool-cta">ارفع ملفك أولًا ←</span>
-      </a>
-    </div>
-    <div class="tool-tip hidden" id="toolsTip">ارفع ملف Excel — أو اضغط «جرّب بملف تجريبي» — وبتظهر لك الأداة تحت مع النتيجة.</div>
-  </section>
-
-  <div class="card" id="uploadCard">
-    <div class="section-head">
-      <h2>رتّب ملف Excel في ثوانٍ</h2>
-      <p>ارفع ملفك الفوضوي، ومُرتّب إكسل ينظفه ويرتبه تلقائيًا — بدون صيغ، بدون دوال، وبدون تعديل يدوي.</p>
-    </div>
+  <!-- ١) الهيرو — النجم: أكبر وأوضح قسم في الصفحة -->
+  <section class="card hero-card sec" id="uploadCard">
+    <h1>رتّب ملف Excel في ثوانٍ</h1>
+    <p class="hero-desc">ارفع ملفك الفوضوي، ومُرتّب إكسل يرتبه لك تلقائيًا. بياناتك ما تخرج من جهازك.</p>
     <div id="dropzone">
-      <div class="icon">📄</div>
-      <div class="primary">اسحب ملف الإكسل هنا، أو اضغط للاختيار</div>
-      <div class="secondary">يدعم xlsx, xls, csv</div>
+      <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <path d="m17 8-5-5-5 5"/>
+        <path d="M12 3v12"/>
+      </svg>
+      <div class="primary">اسحب ملفك هنا أو اضغط للاختيار</div>
+      <div class="secondary">يدعم xlsx · xls · csv</div>
       <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
     </div>
     <div class="demo-row">
@@ -568,9 +590,68 @@
       <span id="statusText">جاري القراءة والتنظيف…</span>
     </div>
     <div class="error-box hidden" id="errorBox"></div>
-  </div>
+  </section>
 
-  <div class="card hidden" id="resultCard">
+  <!-- ٢) اطلب أي شيء — الميزة الثانية (بارزة دائمًا) -->
+  <section class="card agent-card sec" id="agentCard">
+    <div class="agent-heading">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3l1.9 4.6 4.6 1.9-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/>
+        <path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/>
+      </svg>
+      <h2>اطلب أي شيء من بياناتك</h2>
+      <span class="badge-beta">تجريبي</span>
+    </div>
+    <p class="agent-sub">اكتب طلبك بالعربي (مثل: احذف الصفوف اللي فيها راتب أقل من 5000)</p>
+    <form id="agentForm">
+      <textarea id="agentInput" placeholder="مثال: احذف الصفوف اللي فيها راتب أقل من 5000"></textarea>
+      <button type="submit" class="secondary" id="agentSubmit">نفّذ</button>
+    </form>
+    <div class="agent-examples" id="agentExamples"></div>
+    <div class="status-line hidden" id="agentStatus">
+      <div class="spinner"></div>
+      <span>الوكيل يشتغل على طلبك…</span>
+    </div>
+    <div class="agent-result hidden" id="agentResult"></div>
+    <div class="agent-unavailable hidden" id="agentUnavailable">
+      هذه الميزة قيد التطوير — قريبًا. حالياً تقدر تستفيد من أدوات التنظيف والمقارنة والتقسيم.
+    </div>
+  </section>
+
+  <!-- ٣) أدوات مُرتّب إكسل — شريط مضغوط -->
+  <section class="tools-compact sec" id="toolsSection">
+    <h2>أدوات مُرتّب إكسل</h2>
+    <div class="tools-row">
+      <a class="tool-mini" href="#uploadCard">
+        <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3l1.9 4.6 4.6 1.9-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/>
+          <path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/>
+        </svg>
+        <span><span class="tool-name">تنظيف وترتيب</span><span class="tool-note">نظّف ملفك تلقائيًا</span></span>
+      </a>
+      <a class="tool-mini" href="#compareSection">
+        <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>
+        </svg>
+        <span><span class="tool-name">مقارنة نسختين</span><span class="tool-note">اعرف وش تغيّر</span></span>
+      </a>
+      <a class="tool-mini" href="#uploadCard" data-needs-file="1" data-ready="#splitSection">
+        <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/>
+        </svg>
+        <span><span class="tool-name">تقسيم ملف</span><span class="tool-note">ملف لكل فرع</span></span>
+      </a>
+      <a class="tool-mini" href="#uploadCard" data-needs-file="1" data-ready="#memSection">
+        <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span><span class="tool-name">ذاكرة التفضيلات</span><span class="tool-note">تصحيحات محفوظة</span></span>
+      </a>
+    </div>
+    <div class="tool-tip hidden" id="toolsTip">ارفع ملف Excel — أو اضغط «جرّب بملف تجريبي» — وبتظهر لك الأداة تحت مع النتيجة.</div>
+  </section>
+
+  <div class="card hidden sec" id="resultCard">
     <div class="filebar">
       <div class="name" id="fileName"></div>
       <button class="reset-btn" id="resetBtn">ابدأ بملف ثاني</button>
@@ -634,7 +715,7 @@
   </div>
 
   <!-- ============ قارن نسختين — كارت مستقل ومرئي دائمًا (محلي ١٠٠٪) ============ -->
-  <div class="card" id="compareSection">
+  <div class="card sec" id="compareSection">
     <div class="cmp-heading">
       <h3>قارن نسختين من ملفك</h3>
     </div>
@@ -670,29 +751,31 @@
     </div>
   </div>
 
-  <!-- ============ اطلب أي شيء — يظهر بعد ما تعالج ملف ============ -->
-  <div class="card hidden" id="agentCard">
-    <div class="agent-section agent-section--card">
-      <div class="agent-heading">
-        <h3>اطلب أي شيء من بياناتك</h3>
-        <span class="badge-beta">تجريبي</span>
+  <!-- ٦) لماذا مُرتّب إكسل -->
+  <section class="why-section sec" id="whySection">
+    <h2>لماذا مُرتّب إكسل؟</h2>
+    <div class="why-grid">
+      <div class="why-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+        <div><strong>بياناتك محلية 100%</strong><span>ملفك ما يترفع لأي سيرفر — كل المعالجة داخل متصفحك.</span></div>
       </div>
-      <p class="agent-sub">اكتب طلبك بكلامك العادي — فلترة، تجميع، حساب، أو سؤال عن البيانات.</p>
-      <form id="agentForm">
-        <textarea id="agentInput" placeholder="مثال: طلعلي الصفوف اللي فيها قيمة أكبر من ١٠٠٠"></textarea>
-        <button type="submit" class="secondary" id="agentSubmit">نفّذ</button>
-      </form>
-      <div class="agent-examples" id="agentExamples"></div>
-      <div class="status-line hidden" id="agentStatus">
-        <div class="spinner"></div>
-        <span>الوكيل يشتغل على طلبك…</span>
+      <div class="why-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M13 2 3 14h9l-1 8 10-12h-9z"/>
+        </svg>
+        <div><strong>سريع جدًا</strong><span>آلاف الصفوف تُنظّف في ثوانٍ، بدون رفع وانتظار.</span></div>
       </div>
-      <div class="agent-result hidden" id="agentResult"></div>
-      <div class="agent-unavailable hidden" id="agentUnavailable">
-        هذه الميزة قيد التطوير — قريبًا. حالياً تقدر تستفيد من أدوات التنظيف والمقارنة والتقسيم.
+      <div class="why-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>
+        </svg>
+        <div><strong>عربي بالكامل</strong><span>واجهة وأوامر عربية، وتوحيد للتواريخ والأرقام العربية.</span></div>
       </div>
     </div>
-  </div>
+  </section>
 
 </div>
 
@@ -705,6 +788,7 @@
     </nav>
     <p class="footer-note">معالجة التنظيف تتم محليًا داخل متصفحك — ملفك ما يترفع لأي سيرفر.</p>
     <p class="footer-copy">© <span id="year">2026</span> مُرتّب إكسل — جميع الحقوق محفوظة</p>
+    <p class="footer-contact">تواصل معنا: <a href="mailto:yalinashop@gmail.com">yalinashop@gmail.com</a></p>
   </div>
 </footer>
 
@@ -731,7 +815,7 @@
   // ---- بطاقات الأدوات: تمرير ذكي + تنبيه للأدوات اللي تظهر بعد رفع ملف ----
   const toolsTipEl = document.getElementById('toolsTip');
   let toolsTipTimer = null;
-  document.querySelectorAll('.tool-card[data-needs-file]').forEach((card) => {
+  document.querySelectorAll('.tool-mini[data-needs-file]').forEach((card) => {
     card.addEventListener('click', (e) => {
       const ready = !resultCard.classList.contains('hidden');
       const readyTarget = card.getAttribute('data-ready');
@@ -767,7 +851,6 @@
   });
   resetBtn.addEventListener('click', () => {
     resultCard.classList.add('hidden');
-    agentCard.classList.add('hidden');
     uploadCard.classList.remove('hidden');
     errorBox.classList.add('hidden');
     fileInput.value = '';
@@ -797,9 +880,7 @@
     refreshSplitColumns();
     statusLine.classList.add('hidden');
     errorBox.classList.add('hidden');
-    uploadCard.classList.add('hidden');
     resultCard.classList.remove('hidden');
-    agentCard.classList.remove('hidden');
   }
 
   /** يقرأ أول ورقة من ملف إكسل/CSV ويرجّعها مصفوفة صفوف (نفس إعدادات التنظيف) */
@@ -1911,7 +1992,12 @@
   agentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const query = agentInput.value.trim();
-    if (!query || !cleanedAoa) return;
+    if (!query) return;
+    if (!cleanedAoa) {
+      agentResult.classList.remove('hidden');
+      agentResult.innerHTML = '<div class="agent-answer">ارفع ملف Excel أولًا (أو اضغط «جرّب بملف تجريبي») — وبعدها نفّذ طلبك على بياناتك.</div>';
+      return;
+    }
 
     agentResult.classList.add('hidden');
     agentUnavailable.classList.add('hidden');
