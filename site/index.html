@@ -262,6 +262,54 @@
     margin-top: 16px;
   }
 
+  /* ---------- قسّم الملف حسب عمود (محلي بالكامل) ---------- */
+  .split-section {
+    margin-top: 34px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+  }
+  .split-heading h3 { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 17px; margin: 0 0 6px; }
+  .split-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 16px; }
+  .split-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .split-select {
+    flex: 1 1 200px; min-width: 160px;
+    font-family: inherit; font-size: 14px; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--paper); color: var(--ink);
+  }
+  .split-select:focus { outline: none; border-color: var(--forest); }
+  .split-btn {
+    background: var(--forest); color: #fff; border: none; border-radius: 8px;
+    padding: 11px 20px; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .split-btn:hover { background: var(--forest-deep); }
+  .split-btn-ghost {
+    background: var(--paper); color: var(--forest-deep);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 18px; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .split-btn-ghost:hover { border-color: var(--forest); }
+  .split-hint { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+  .split-hint.err { color: var(--danger); }
+  .split-groups { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .split-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px 12px; font-size: 13.5px;
+  }
+  .split-row .name { flex: 1 1 120px; font-weight: 600; }
+  .split-row .count { color: var(--muted); font-size: 12.5px; }
+  .split-row .dl {
+    background: none; border: 1px solid var(--line); color: var(--forest-deep);
+    border-radius: 7px; padding: 5px 12px; font-size: 12.5px;
+    cursor: pointer; font-family: inherit;
+  }
+  .split-row .dl:hover { border-color: var(--forest); }
+  .split-actions { margin-top: 14px; }
+  .split-total { color: var(--muted); font-size: 12.5px; margin-top: 10px; }
+
   /* ---------- ذاكرة تفضيلاتي (محلية بالكامل) ---------- */
   .mem-section {
     margin-top: 34px;
@@ -347,6 +395,7 @@
     .brand-tag { display: none; }
     .card { padding: 18px; }
     .actions button.primary { width: 100%; }
+    .split-btn, .split-btn-ghost { flex: 1 1 100%; }
     .mem-btn { flex: 1 1 100%; }
     #agentSubmit { width: 100%; }
     #agentInput { min-width: 100%; }
@@ -406,6 +455,24 @@
 
     <div class="actions">
       <button class="primary" id="downloadBtn">تحميل الملف المرتب (xlsx)</button>
+    </div>
+
+    <div class="split-section" id="splitSection">
+      <div class="split-heading">
+        <h3>قسّم الملف</h3>
+      </div>
+      <p class="split-sub">وزّع الصفوف على ملفات إكسل منفصلة حسب أي عمود — ملف لكل قيمة (فرع، مدينة، شهر…). بدون رفع ولا سيرفر.</p>
+      <div class="split-controls">
+        <label class="split-label" for="splitColumn" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">قسّم حسب العمود</label>
+        <select id="splitColumn" class="split-select" aria-label="قسّم حسب العمود"></select>
+        <button type="button" class="split-btn" id="splitBtn">قسّم الملف</button>
+      </div>
+      <div class="split-hint hidden" id="splitHint" role="status" aria-live="polite"></div>
+      <div class="split-groups hidden" id="splitGroups"></div>
+      <div class="split-total" id="splitTotal"></div>
+      <div class="split-actions hidden" id="splitActions">
+        <button type="button" class="split-btn-ghost" id="splitZipBtn">تحميل الكل في ملف ZIP</button>
+      </div>
     </div>
 
     <div class="mem-section" id="memSection">
@@ -534,6 +601,7 @@
     fileNameEl.textContent = label || 'ملف-مرتب';
     renderStats(result.stats);
     renderTable(afterTableEl, finalAoa, 8);
+    refreshSplitColumns();
     statusLine.classList.add('hidden');
     errorBox.classList.add('hidden');
     uploadCard.classList.add('hidden');
@@ -811,6 +879,249 @@
     } finally {
       downloadBtn.disabled = false;
       downloadBtn.textContent = originalLabel;
+    }
+  });
+
+  // =====================================================================
+  // قسّم الملف حسب عمود — محلي ١٠٠٪ (بدون شبكة وبدون AI)
+  // =====================================================================
+  const SPLIT_MAX_GROUPS = 60;
+  const splitColumn = document.getElementById('splitColumn');
+  const splitBtn = document.getElementById('splitBtn');
+  const splitHint = document.getElementById('splitHint');
+  const splitGroups = document.getElementById('splitGroups');
+  const splitActions = document.getElementById('splitActions');
+  const splitZipBtn = document.getElementById('splitZipBtn');
+  const splitTotal = document.getElementById('splitTotal');
+
+  let splitState = { groups: [], index: 0, base: 'ملف-مرتب' };
+
+  function splitShowHint(text, isError) {
+    splitHint.textContent = text;
+    splitHint.classList.remove('hidden');
+    if (isError) splitHint.classList.add('err'); else splitHint.classList.remove('err');
+  }
+
+  function splitClearGroups() {
+    splitState = { groups: [], index: 0, base: cleanedFileBase };
+    splitGroups.innerHTML = '';
+    splitGroups.classList.add('hidden');
+    splitActions.classList.add('hidden');
+    splitTotal.textContent = '';
+  }
+
+  /** يعبّي قائمة الأعمدة من البيانات النهائية (بعد التنظيف والذاكرة) */
+  function refreshSplitColumns() {
+    const header = cleanedAoa && cleanedAoa[0] ? cleanedAoa[0] : [];
+    splitColumn.innerHTML = header
+      .map((h, i) => '<option value="' + i + '">' + (esc(String(h)) || 'عمود ' + (i + 1)) + '</option>')
+      .join('');
+    splitClearGroups();
+    splitHint.classList.add('hidden');
+  }
+
+  function safeFileName(value) {
+    const s = String(value === null || value === undefined ? '' : value)
+      .replace(/[\\/:*?"<>|]+/g, '-')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 60);
+    return s || 'بدون-قيمة';
+  }
+
+  function safeSheetName(value) {
+    const s = String(value === null || value === undefined ? '' : value)
+      .replace(/[\\/:*?\[\]]+/g, ' ')
+      .trim()
+      .slice(0, 31);
+    return s || 'ورقة';
+  }
+
+  function groupRowsBy(index) {
+    const rows = cleanedAoa.slice(1);
+    const map = new Map();
+    for (const row of rows) {
+      const cell = row[index];
+      const key = (cell === null || cell === undefined || String(cell).trim() === '') ? '' : String(cell).trim();
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(row);
+    }
+    return [...map.entries()]
+      .map(([value, groupRows]) => ({ value: value, rows: groupRows }))
+      .sort((a, b) => b.rows.length - a.rows.length);
+  }
+
+  function buildGroupXlsx(groupRows, groupValue) {
+    const header = cleanedAoa[0];
+    const ws = XLSX.utils.aoa_to_sheet([header, ...groupRows]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, safeSheetName(groupValue));
+    return XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+  }
+
+  function renderSplitGroups(groups) {
+    splitGroups.innerHTML = groups
+      .map((g, i) =>
+        '<div class="split-row">' +
+          '<span class="name">' + (esc(g.value) || 'بدون قيمة') + '</span>' +
+          '<span class="count">' + g.rows.length + ' صف</span>' +
+          '<button type="button" class="dl" data-g="' + i + '">تحميل</button>' +
+        '</div>'
+      )
+      .join('');
+    splitGroups.classList.remove('hidden');
+    splitActions.classList.remove('hidden');
+    splitTotal.textContent =
+      groups.length + ' ملف · ' + groups.reduce((a, g) => a + g.rows.length, 0) + ' صف إجمالًا';
+  }
+
+  splitBtn.addEventListener('click', () => {
+    if (!cleanedAoa || cleanedAoa.length < 2) {
+      splitShowHint('ما فيه بيانات كافية للتقسيم.', true);
+      return;
+    }
+    const index = Number(splitColumn.value);
+    if (!Number.isInteger(index) || index < 0) {
+      splitShowHint('اختر عمودًا للتقسيم.', true);
+      return;
+    }
+    const groups = groupRowsBy(index);
+    if (groups.length < 2) {
+      splitClearGroups();
+      splitShowHint('هذا العمود فيه قيمة واحدة فقط — ما فيه شي ينقسم. جرّب عمودًا مثل الفرع أو المدينة.', true);
+      return;
+    }
+    if (groups.length > SPLIT_MAX_GROUPS) {
+      splitClearGroups();
+      splitShowHint(
+        'هذا العمود فيه ' + groups.length + ' قيمة مختلفة — كثيرة مرة (الحد ' + SPLIT_MAX_GROUPS + '). ' +
+        'اختر عمودًا فيه قيم متكررة (فرع، مدينة، شهر، حالة الطلب…).',
+        true
+      );
+      return;
+    }
+    splitState = { groups: groups, index: index, base: cleanedFileBase };
+    renderSplitGroups(groups);
+    splitShowHint('تم التقسيم — اضغط «تحميل» على أي مجموعة، أو حمّل الكل في ZIP.', false);
+  });
+
+  splitGroups.addEventListener('click', (e) => {
+    const btn = e.target.closest('.dl');
+    if (!btn) return;
+    const i = Number(btn.getAttribute('data-g'));
+    const g = splitState.groups[i];
+    if (!g) return;
+    try {
+      const bytes = buildGroupXlsx(g.rows, g.value);
+      downloadBlob(
+        new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+        splitState.base + '-' + safeFileName(g.value) + '.xlsx'
+      );
+    } catch (err) {
+      splitShowHint('تعذّر تجهيز الملف: ' + (err && err.message ? err.message : 'خطأ غير معروف'), true);
+    }
+  });
+
+  // ---- ZIP بدون ضغط (ملفات xlsx مضغوطة أصلًا) مع دعم أسماء عربية ----
+  const CRC_TABLE = (() => {
+    const t = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+      t[i] = c >>> 0;
+    }
+    return t;
+  })();
+
+  function crc32(bytes) {
+    let c = 0xffffffff;
+    for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+
+  function buildZip(entries) {
+    const enc = new TextEncoder();
+    const parts = [];
+    const central = [];
+    let offset = 0;
+    for (const entry of entries) {
+      const nameBytes = enc.encode(entry.name);
+      const data = entry.data;
+      const crc = crc32(data);
+
+      const local = new Uint8Array(30 + nameBytes.length);
+      const lv = new DataView(local.buffer);
+      lv.setUint32(0, 0x04034b50, true);
+      lv.setUint16(4, 20, true);
+      lv.setUint16(6, 0x0800, true); // أسماء UTF-8
+      lv.setUint16(8, 0, true);      // بدون ضغط
+      lv.setUint32(14, crc, true);
+      lv.setUint32(18, data.length, true);
+      lv.setUint32(22, data.length, true);
+      lv.setUint16(26, nameBytes.length, true);
+      local.set(nameBytes, 30);
+      parts.push(local, data);
+
+      const cd = new Uint8Array(46 + nameBytes.length);
+      const cv = new DataView(cd.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint16(8, 0x0800, true);
+      cv.setUint32(16, crc, true);
+      cv.setUint32(20, data.length, true);
+      cv.setUint32(24, data.length, true);
+      cv.setUint16(28, nameBytes.length, true);
+      cv.setUint32(42, offset, true);
+      cd.set(nameBytes, 46);
+      central.push(cd);
+
+      offset += local.length + data.length;
+    }
+
+    const centralSize = central.reduce((a, c) => a + c.length, 0);
+    const eocd = new Uint8Array(22);
+    const ev = new DataView(eocd.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(8, entries.length, true);
+    ev.setUint16(10, entries.length, true);
+    ev.setUint32(12, centralSize, true);
+    ev.setUint32(16, offset, true);
+
+    const all = [...parts, ...central, eocd];
+    const out = new Uint8Array(all.reduce((a, p) => a + p.length, 0));
+    let pos = 0;
+    for (const p of all) {
+      out.set(p, pos);
+      pos += p.length;
+    }
+    return out;
+  }
+
+  splitZipBtn.addEventListener('click', () => {
+    const groups = splitState.groups;
+    if (!groups.length) return;
+    try {
+      const entries = groups.map((g) => ({
+        name: splitState.base + '-' + safeFileName(g.value) + '.xlsx',
+        data: new Uint8Array(buildGroupXlsx(g.rows, g.value)),
+      }));
+      const zip = buildZip(entries);
+      downloadBlob(new Blob([zip], { type: 'application/zip' }), splitState.base + '-مقسّم.zip');
+      splitShowHint('تم تجهيز ملف ZIP فيه ' + entries.length + ' ملف إكسل.', false);
+    } catch (err) {
+      splitShowHint('تعذّر تجهيز ملف ZIP: ' + (err && err.message ? err.message : 'خطأ غير معروف'), true);
     }
   });
 
