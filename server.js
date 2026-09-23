@@ -12,8 +12,8 @@ app.listen(port, host, () => {
   try {
     const cfg = resolveProviderConfig(process.env);
     console.log(`[murattab] provider=${cfg.provider} model=${cfg.model}`);
-    if (cfg.provider === 'mock') {
-      console.warn('[murattab] تنبيه: المزوّد mock مفعّل — للاختبار فقط، مو للاستخدام الحقيقي.');
+    if (cfg.provider === 'deepseek') {
+      console.log(`[murattab] DeepSeek endpoint: ${cfg.baseUrl}/chat/completions`);
     }
   } catch (err) {
     const message = err instanceof ProviderError ? err.publicMessage : String(err?.message || err);

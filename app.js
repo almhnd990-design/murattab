@@ -86,7 +86,6 @@ app.post('/agent', async (req, res) => {
 
   const { columns, rows, totalRows, truncated, query } = checked.value;
   const prompt = buildPrompt({ columns, rows, totalRows, truncated, query });
-  const meta = { columns, rows, totalRows, truncated, query };
 
   try {
     let text = await generateText({
@@ -94,7 +93,6 @@ app.post('/agent', async (req, res) => {
       system: prompt.system,
       user: prompt.user,
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      meta,
     });
 
     let result;
@@ -112,7 +110,6 @@ app.post('/agent', async (req, res) => {
         system: prompt.system,
         user: repairUser,
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-        meta,
       });
       result = parseModelOutput(text, { fallbackColumns: columns });
     }

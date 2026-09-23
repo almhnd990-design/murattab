@@ -94,8 +94,8 @@ npm start
 powershell -ExecutionPolicy Bypass -File scripts\check-endpoint.ps1 -Url http://localhost:8787/agent
 ```
 
-> تبي تتأكد أن كل شي شغال **بدون** ما تصرف رصيد؟ حط في `.env` السطر `AI_PROVIDER=mock`
-> وشغّل `npm run smoke` — ١٠ اختبارات تمر بدون أي مفتاح.
+> لا يوجد أي رد وهمي في السيرفر — كل الردود تجي من DeepSeek. اختبارات `npm run smoke`
+> تحتاج مفتاحًا مضبوطًا في `.env` (اختبارات الأخطاء 400/404 تشتغل بدونه).
 
 ---
 
@@ -117,21 +117,23 @@ Render مجاني للبداية، والرابط اللي يعطيك هو نف�
 - السيرفر: `https://murattab-agent.onrender.com`
 - الموقع: `https://murattab-site.onrender.com`
 
-> الخدمتان تشتغلان حاليًا بـ `AI_PROVIDER=mock` (ردود تجريبية) — **بدون أي مفتاح وببلاش**.
-> لتشغيل الذكاء الحقيقي: صفحة `murattab-agent` → **Environment** → بدّل `AI_PROVIDER` إلى `deepseek`
-> وأضف `DEEPSEEK_API_KEY` بمفتاحك → **Save Changes** (يعيد النشر تلقائيًا).
+> ⚠️ **السيرفر يحتاج مفتاح DeepSeek عشان يشتغل:** صفحة `murattab-agent` → **Environment** →
+> تأكد أن `AI_PROVIDER` = `deepseek` و`DEEPSEEK_MODEL` = `deepseek-chat`، وأضف
+> `DEEPSEEK_API_KEY` بمفتاحك → **Save Changes** (يعيد النشر تلقائيًا).
+> بدون المفتاح، `/health` يبين `ok:false` و`/agent` يرجّع 500 مع رسالة واضحة.
 
 ### 4.3 الطريقة اليدوية (بديل، لو ما ضبط الـ Blueprint)
 1. **السيرفر**: New + → **Web Service** → اختر المستودع → Language `Node` · Branch `main` ·
    Build `npm install` · Start `npm start` · Instance `Free` · Region `Frankfurt` ·
-   وأضف متغير بيئة واحد: `AI_PROVIDER` = `mock`.
+   ومتغيرات البيئة: `AI_PROVIDER` = `deepseek` و`DEEPSEEK_MODEL` = `deepseek-chat`
+   و`DEEPSEEK_API_KEY` = مفتاحك.
 2. **الموقع**: New + → **Static Site** → نفس المستودع → **Root Directory** = `site` ·
    **Build Command** = اتركه فاضي · **Publish Directory** = `.`
 
 ### 4.4 تأكد أن الرابطين شغالين
 1. افتح `https://murattab-agent.onrender.com/health` → لازم يبين:
    ```json
-   {"ok":true,"service":"murattab-agent-server","provider":"mock","model":"mock"}
+   {"ok":true,"service":"murattab-agent-server","provider":"deepseek","model":"deepseek-chat"}
    ```
    **لو بين `ok:false`** معناها المزوّد أو المفتاح غلط → راجع قسم حل المشاكل.
 2. افتح `https://murattab-site.onrender.com` → لازم يفتح الموقع بالرأس الأخضر والتذييل.
@@ -241,9 +243,9 @@ https://murattab-agent.onrender.com/agent
 
 | المتغير | افتراضي | الوصف |
 |---|---|---|
-| `AI_PROVIDER` | تلقائي | `deepseek` أو `anthropic` أو `openai` أو `mock` (للاختبار فقط) |
-| `DEEPSEEK_API_KEY` | — | مفتاح DeepSeek (الأرخص) |
-| `DEEPSEEK_MODEL` | `deepseek-flash` | اسم الموديل |
+| `AI_PROVIDER` | تلقائي | المزوّد الرسمي `deepseek` (أو `anthropic` / `openai`) |
+| `DEEPSEEK_API_KEY` | — | **مطلوب** — مفتاح DeepSeek |
+| `DEEPSEEK_MODEL` | `deepseek-chat` | اسم الموديل (و`deepseek-flash` أرخص) |
 | `DEEPSEEK_THINKING` | `disabled` | وضع التفكير — اتركه مطفّي (أسرع وأرخص) |
 | `ANTHROPIC_API_KEY` | — | مفتاح Claude (مطلوب لو اخترت anthropic) |
 | `ANTHROPIC_MODEL` | `claude-sonnet-5` | اسم الموديل |

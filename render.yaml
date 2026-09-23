@@ -13,11 +13,14 @@ services:
     buildCommand: npm install
     startCommand: npm start
     envVars:
-      # الوضع الحالي: تجريبي مجاني بدون أي مفتاح (ردود تجريبية تثبت أن كل شي موصول).
-      # لتشغيل الذكاء الحقيقي: بدّل القيمة إلى deepseek وأضف DEEPSEEK_API_KEY
-      # (أو anthropic + ANTHROPIC_API_KEY، أو openai + OPENAI_API_KEY).
+      # المزوّد الرسمي: DeepSeek (بدون أي رد وهمي).
+      # ⚠️ لازم تضيف DEEPSEEK_API_KEY من لوحة Render: خدمة murattab-agent → Environment.
       - key: AI_PROVIDER
-        value: mock
+        value: deepseek
+      - key: DEEPSEEK_MODEL
+        value: deepseek-chat
+      - key: DEEPSEEK_THINKING
+        value: disabled
       - key: MAX_TOKENS
         value: "4096"
       - key: REQUEST_TIMEOUT_MS
